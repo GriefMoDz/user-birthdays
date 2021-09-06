@@ -8,7 +8,7 @@
 
 ---
 
-<h2 align="center">User Birthdays</h2>
+<h3 align="center">User Birthdays</h3>
 
 <p align="center">Placeholder Description</p>
 
