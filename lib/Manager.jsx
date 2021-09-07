@@ -108,10 +108,8 @@ class BirthdayStore extends Flux.Store {
       return false
    }
 
-   async check(boot = false) {
+   async check() {
       const birthdays = this.getBirthdays()
-
-      if (boot) await sleep(500)
 
       for (let user of Object.keys(birthdays)) {
          if (this.isBirthday(user)) {

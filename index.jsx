@@ -26,9 +26,9 @@ module.exports = class UserBirthdays extends Plugin {
          render: Settings
       })
 
-      Birthdays.check(true)
       this.interval = setInterval(() => Birthdays.check(), 1.8e+6)
       this.manager = Birthdays
+      Birthdays.check()
 
       this.patchBirthdayIcons()
       this.patchContextMenus()
