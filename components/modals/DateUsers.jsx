@@ -57,16 +57,14 @@ module.exports = class DateUsers extends React.Component {
                   return true
                }).map(u =>
                   <Card
-                     name={u.username}
+                     name={u.tag}
                      user={u}
                      style={{ cursor: 'pointer' }}
                      onClick={() => {
                         ChannelStore.openPrivateChannel(u.id)
                         closeAll()
                      }}
-                  >
-                     {u.tag}
-                  </Card>
+                  />
                ) : <NoResults />}
             </Modal.Content>
          </Modal>
