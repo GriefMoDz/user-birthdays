@@ -11,12 +11,13 @@ const { getDefaultMethodByKeyword } = require('./lib/Util')
 const Birthdays = require('./lib/Manager')
 const i18n = require('./i18n')
 
+const Cake = require('./components/icons/svg/Cake')
 const BirthdayIcon = require('./components/icons/Birthday')
 const Settings = require('./components/settings/Settings')
 const DatePicker = require('./components/misc/DatePicker')
 
 module.exports = class UserBirthdays extends Plugin {
-   async startPlugin() {
+   startPlugin() {
       this.loadStylesheet('style.scss')
       powercord.api.i18n.loadAllStrings(i18n)
 
@@ -30,6 +31,7 @@ module.exports = class UserBirthdays extends Plugin {
       this.manager = Birthdays
       // Birthdays.check()
 
+      this.patchSettingsPage()
       this.patchBirthdayIcons()
       this.patchContextMenus()
    }
@@ -59,7 +61,7 @@ module.exports = class UserBirthdays extends Plugin {
 
 
          return res
-      });
+      })
 
       ['ChannelMessage', 'InboxMessage'].forEach(component => {
          const mdl = getModule(m => m.type?.displayName === component, false)
@@ -223,6 +225,35 @@ module.exports = class UserBirthdays extends Plugin {
       }
 
       return res
+   }
+
+
+   async patchSettingsPage() {
+      const ErrorBoundary = require('../pc-settings/components/ErrorBoundary')
+
+      const FormSection = await getModuleByDisplayName('FormSection')
+      const SettingsView = await getModuleByDisplayName('SettingsView')
+      this.patch('ub-settings-page', SettingsView.prototype, 'getPredicateSections', (_, sections) => {
+         const changelog = sections.find(category => category.section === 'changelog')
+         if (changelog) {
+            const ubSettingsPage = sections.find(category => category.section === this.entityID)
+            if (ubSettingsPage) {
+               const SettingsElement = powercord.api.settings.tabs[this.entityID].render
+               const getSectionTitle = () => <React.Fragment>
+                  <Cake className='ub-settings-cake-icon'/>
+                  {this.manifest.name}
+               </React.Fragment>
+
+               ubSettingsPage.element = () => <ErrorBoundary>
+                  <FormSection title={getSectionTitle()} tag='h1'>
+                     <SettingsElement/>
+                  </FormSection>
+               </ErrorBoundary>
+            }
+         }
+
+         return sections
+      })
    }
 
    pluginWillUnload() {

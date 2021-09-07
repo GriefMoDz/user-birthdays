@@ -1,9 +1,9 @@
 const { React, getModuleByDisplayName, getModule } = require('powercord/webpack')
-const CalendarPicker = getModuleByDisplayName('CalendarPicker', false)
 const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
-const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const Birthdays = require('../../lib/Manager')
 
+const CalendarPicker = getModuleByDisplayName('CalendarPicker', false)
+const VoiceUserSummaryItem = getModuleByDisplayName('VoiceUserSummaryItem', false)
 
 module.exports = class DatePicker extends React.Component {
    render() {
@@ -38,12 +38,13 @@ module.exports = class DatePicker extends React.Component {
                   </div>
                ]
                const fetched = birthdays.map(u => getUser(u))
-               res.push(...fetched.map(user =>
-                  <AnimatedAvatar
-                     src={user.getAvatarURL()}
-                     size='SIZE_32'
+               res.push(
+                  <VoiceUserSummaryItem
+                     className='ub-date-picker-birthday-users'
+                     users={fetched}
+                     max={3}
                   />
-               ))
+               )
 
                return res
             }

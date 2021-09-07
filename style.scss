@@ -29,6 +29,13 @@
    }
 }
 
+.ub-settings-cake-icon {
+   width: 24px;
+   height: 24px;
+   margin-right: 5px;
+   vertical-align: bottom;
+}
+
 /* Birthday Alert */
 .user-birthday-alert-container {
    position: absolute;
@@ -59,8 +66,10 @@
 
 .user-birthday-alert-text {
    text-align: center;
-   margin-bottom: 1em;
    font-size: 48px;
+
+   margin-bottom: 1em;
+   line-height: inherit;
 }
 
 .user-birthday-alert-buttons {
@@ -93,9 +102,9 @@
       height: 85px !important;
    }
 
-   .wrapper-3t9DeA {
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
+   .ub-date-picker-birthday-users {
+      justify-content: center;
+      position: absolute;
+      width: 100%;
    }
 }
