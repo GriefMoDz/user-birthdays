@@ -1,8 +1,12 @@
 const { React, getModule, getModuleByDisplayName } = require('powercord/webpack')
 const { inject, uninject } = require('powercord/injector')
-const { findInReactTree, sleep } = require('powercord/util')
+const { findInReactTree, findInTree, sleep } = require('powercord/util')
 const { Plugin } = require('powercord/entities')
 const { open: openModal, close: closeModal } = require('powercord/modal')
+
+const { MenuItem } = getModule(['MenuItem'], false)
+const moment = getModule(['createFromInputFallback'], false)
+const DatePicker = require('./components/misc/DatePicker')
 
 const { getDefaultMethodByKeyword } = require('./lib/Util')
 const Birthdays = require('./lib/Manager')
@@ -17,10 +21,12 @@ module.exports = class UserBirthdays extends Plugin {
       this.loadStylesheet('style.scss')
 
       this.manager = Birthdays
-      Birthdays.check(true)
+      this.calendar = require('./components/misc/DatePicker')
+      // Birthdays.check(true)
 
       this.interval = setInterval(() => Birthdays.check(), 1.8e+6)
 
+      this.patchContextMenus()
       powercord.api.settings.registerSettings(this.entityID, {
          category: this.entityID,
          label: 'User Birthdays',
@@ -128,6 +134,93 @@ module.exports = class UserBirthdays extends Plugin {
 
          return res
       })
+   }
+
+   patchContextMenus() {
+      const DMContextMenu = getModule(m => m.default?.displayName == 'DMUserContextMenu', false)
+      this.patch('mc-context-menu-dm', DMContextMenu, 'default', this.processContextMenu.bind(this))
+      DMContextMenu.default.displayName = 'DMUserContextMenu'
+   }
+
+   processContextMenu([args], res) {
+      const user = args.user
+
+      const note = findInReactTree(res, r => Array.isArray(r) && r.find(g => g?.props?.id == 'note'))
+      if (user && note) {
+         const index = note.indexOf(note.find(r => r?.props?.id == 'note'))
+         const hasBday = Birthdays.getUser(user.id)
+
+         note.splice(index + 1, 0,
+            hasBday ?
+               <MenuItem
+                  id='has-birthday'
+                  key='has-birthday'
+                  label={`Birthday (${moment(hasBday).format('D MMM')})`}
+               >
+                  <MenuItem
+                     id='Edit-birthday'
+                     key='Edit-birthday'
+                     label='Edit'
+                     action={() => openModal(() => {
+                        return <DatePicker
+                           minDate={moment().startOf('year')}
+                           maxDate={moment().endOf('year')}
+                           selected={new Date(hasBday)}
+                           dateFormatCalendar='LLLL'
+                           enableTabLoop={false}
+                           onSelect={(v) => {
+                              closeModal()
+                              Birthdays.setUser(user.id, v.valueOf())
+                              if (!Object.keys(powercord.api.notices.toasts).find(t => t == 'ud-edited-birthday')) {
+                                 powercord.api.notices.sendToast('ud-edited-birthday', {
+                                    type: 'success',
+                                    timeout: 5000,
+                                    header: 'Success',
+                                    content: 'Birthday edited.'
+                                 })
+                              }
+                           }}
+                        />
+                     })}
+                  />
+                  <MenuItem
+                     id='remove-birthday'
+                     key='remove-birthday'
+                     label='Remove'
+                     color='colorDanger'
+                     action={() => {
+                        Birthdays.removeUser(user.id)
+                     }}
+                  />
+               </MenuItem>
+               :
+               <MenuItem
+                  id='add-birthday'
+                  key='add-birthday'
+                  label='Add Birthday'
+                  action={() => openModal(() => {
+                     return <DatePicker
+                        minDate={moment(0)}
+                        maxDate={moment(Date.now())}
+                        onSelect={(v) => {
+                           closeModal()
+                           if (!Object.keys(powercord.api.notices.toasts).find(t => t == 'ud-added-birthday')) {
+                              powercord.api.notices.sendToast('ud-added-birthday', {
+                                 type: 'success',
+                                 timeout: 5000,
+                                 header: 'Success',
+                                 content: 'Birthday added.'
+                              })
+                           }
+                           Birthdays.setUser(user.id, v.valueOf())
+                        }}
+                     />
+                  })}
+               />
+         )
+      }
+
+      return res
    }
 
    pluginWillUnload() {

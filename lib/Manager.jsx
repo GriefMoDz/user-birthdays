@@ -75,6 +75,20 @@ class BirthdayStore extends Flux.Store {
       return null
    }
 
+   removeUser(user) {
+      if (!user) throw 'No user provided!'
+
+      if (typeof user == 'string') {
+         delete birthdays[user]
+         return true
+      } else if (user?.id) {
+         delete birthdays[user.id]
+         return true
+      }
+
+      return false
+   }
+
    isBirthday(user) {
       if (!user) throw 'No user provided!'
 
