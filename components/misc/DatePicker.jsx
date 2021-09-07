@@ -32,20 +32,17 @@ module.exports = class DatePicker extends React.Component {
                   return null
                }).filter(Boolean)
 
+               const fetched = birthdays.map(u => getUser(u))
                if (!Array.isArray(res)) res = [
-                  <div className='date-number'>
-                     {res}
+                  <div className={fetched.length ? null : 'ub-date-number'}>
+                     <p style={{ margin: '0' }} className='ub-date-number-p'>{res}</p>
+                     <VoiceUserSummaryItem
+                        className='ub-date-picker-birthday-users'
+                        users={fetched}
+                        max={3}
+                     />
                   </div>
                ]
-
-               const fetched = birthdays.map(u => getUser(u))
-               res.push(
-                  <VoiceUserSummaryItem
-                     className='ub-date-picker-birthday-users'
-                     users={fetched}
-                     max={3}
-                  />
-               )
 
                return res
             }
