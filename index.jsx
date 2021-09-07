@@ -203,8 +203,8 @@ module.exports = class UserBirthdays extends Plugin {
                   label='Add Birthday'
                   action={() => openModal(() => {
                      return <DatePicker
-                        minDate={moment(0)}
-                        maxDate={moment(Date.now())}
+                        minDate={moment().startOf('year')}
+                        maxDate={moment().endOf('year')}
                         dateFormatCalendar='LLLL'
                         onSelect={(v) => {
                            closeModal()
