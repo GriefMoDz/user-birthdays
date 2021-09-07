@@ -1,20 +1,23 @@
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
+const { Icon } = require('powercord/components')
+const { close } = require('powercord/modal')
 
 const { ConfettiCannon, ConfettiCanvas } = getModule(['ConfettiCannon'], false)
+const { default: Button } = getModule(m => m.ButtonLink, false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
-const Button = getModule(m => m.ButtonLink, false).default
-const CannonClasses = getModule(['cannonWrapper'], false)
-const Hat = require('../icons/svg/PartyHat')
-
 const AppLayer = getModuleByDisplayName('AppLayer', false)
+const CannonClasses = getModule(['cannonWrapper'], false)
 const Header = getModuleByDisplayName('Header', false)
+
+const Hat = require('../icons/svg/PartyHat')
 
 module.exports = class BirthdayAlert extends React.Component {
    constructor(props) {
       super(props)
 
       this.state = {
-         cannonRef: null
+         cannonRef: null,
+         sentSuccess: Button.Colors.BRAND
       }
 
       this.ref = React.createRef()
@@ -107,6 +110,7 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderButtons() {
+      const { user } = this.props
       const defaultProps = {
          size: Button.Sizes.LARGE,
          look: Button.Looks.GHOST
@@ -115,15 +119,21 @@ module.exports = class BirthdayAlert extends React.Component {
       return (
          <div className='user-birthday-alert-buttons'>
             <Button
-               color={Button.Colors.BRAND}
-               onClick={() => void 0}
+               color={this.state.sentSuccess}
+               onClick={() => {
+                  if (this.state.sentSuccess == Button.Colors.GREEN) return
+                  this.setState({ sentSuccess: Button.Colors.GREEN })
+               }}
                {...defaultProps}
             >
-               {Messages.UB_BIRTHDAY_ALERT_SEND_BUTTON}
+               {this.state.sentSuccess == Button.Colors.BRAND ?
+                  Messages.UB_BIRTHDAY_ALERT_SEND_BUTTON :
+                  <Icon name='Checkmark' />
+               }
             </Button>
             <Button
                color={Button.Colors.GREY}
-               onClick={() => void 0}
+               onClick={close}
                {...defaultProps}
             >
                {Messages.UB_BIRTHDAY_ALERT_DISMISS_BUTTON}
