@@ -5,6 +5,7 @@ const { Plugin } = require('powercord/entities')
 const { open: openModal, close: closeModal } = require('powercord/modal')
 
 const { getDefaultMethodByKeyword } = require('./lib/Util')
+const Birthdays = require('./lib/Manager')
 const i18n = require('./i18n')
 
 const BirthdayAlert = require('./components/alert/BirthdayAlert')
@@ -14,14 +15,12 @@ const Settings = require('./components/settings/Settings')
 module.exports = class UserBirthdays extends Plugin {
    async startPlugin() {
       this.loadStylesheet('style.scss')
-      await sleep(1000)
-      openModal(() => {
-         return (
-            <div style={{ "width": "100%", "height": "100%" }}>
-               <BirthdayAlert user={getModule(['getCurrentUser'], false).getCurrentUser()} />
-            </div>
-         )
-      })
+
+      this.manager = Birthdays
+      Birthdays.check(true)
+
+      this.interval = setInterval(() => Birthdays.check(), 1.8e+6)
+
       powercord.api.settings.registerSettings(this.entityID, {
          category: this.entityID,
          label: 'User Birthdays',
@@ -46,9 +45,12 @@ module.exports = class UserBirthdays extends Plugin {
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
       this.patch('ub-message-header2', UsernameHeader, 'default', ([{ __ubDefaultProps: defaultProps }], res) => {
-         res.props.children.splice(2, 0, [
-            <ConnectedBirthdayIcon {...defaultProps} />]
-         )
+         if (defaultProps && Birthdays.isBirthday(defaultProps.user)) {
+            res.props.children.splice(2, 0, [
+               <ConnectedBirthdayIcon {...defaultProps} />
+            ])
+         }
+
 
          return res
       });
@@ -72,9 +74,11 @@ module.exports = class UserBirthdays extends Plugin {
       this.patch('ub-member-list', MemberListItem.prototype, 'renderDecorators', function (_, res) {
          const defaultProps = { user: this.props.user, location: 'members-list' }
 
-         res.props.children.unshift([
-            <ConnectedBirthdayIcon {...defaultProps} />
-         ])
+         if (Birthdays.isBirthday(this.props.user)) {
+            res.props.children.unshift([
+               <ConnectedBirthdayIcon {...defaultProps} />
+            ])
+         }
 
          return res
       })
@@ -93,9 +97,11 @@ module.exports = class UserBirthdays extends Plugin {
          const user = props.user || userStore.findByTag(props.name, props.discriminator)
          const defaultProps = { user, location: 'user-popout-modal' }
 
-         res.props.children.splice(2, 0, [
-            <ConnectedBirthdayIcon {...defaultProps} />
-         ])
+         if (Birthdays.isBirthday(user)) {
+            res.props.children.splice(2, 0, [
+               <ConnectedBirthdayIcon {...defaultProps} />
+            ])
+         }
 
          return res
       })
@@ -108,20 +114,24 @@ module.exports = class UserBirthdays extends Plugin {
             return res
          }
 
-         const defaultProps = { user: this.props.user, location: 'direct-messages' }
 
-         const old = res.props.decorators
-         res.props.decorators = [
-            <ConnectedBirthdayIcon {...defaultProps} />
-         ]
+         if (Birthdays.isBirthday(this.props.user)) {
+            const defaultProps = { user: this.props.user, location: 'direct-messages' }
 
-         if (old) res.props.decorators.push(...old)
+            const old = res.props.decorators
+            res.props.decorators = [
+               <ConnectedBirthdayIcon {...defaultProps} />
+            ]
+
+            if (old) res.props.decorators.push(...old)
+         }
 
          return res
       })
    }
 
    pluginWillUnload() {
+      if (this.interval) clearInterval(this.interval)
       for (const patch of this.patches ?? []) uninject(patch)
       powercord.api.settings.unregisterSettings(this.entityID)
    }

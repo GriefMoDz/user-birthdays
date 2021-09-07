@@ -1,9 +1,10 @@
-const { React, getModule, getModuleByDisplayName } = require('powercord/webpack')
+const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 
 const { ConfettiCannon, ConfettiCanvas } = getModule(['ConfettiCannon'], false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const Button = getModule(m => m.ButtonLink, false).default
 const CannonClasses = getModule(['cannonWrapper'], false)
+const Hat = require('../icons/svg/PartyHat')
 
 const AppLayer = getModuleByDisplayName('AppLayer', false)
 const Header = getModuleByDisplayName('Header', false)
@@ -36,11 +37,31 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderConfetti() {
+      // const variety = {
+      //    hexagon
+      // }
+
       const defaultProps = {
-         sprites: ['/assets/b1d4c5e276e3aaa8ec41e6014dd572b2.svg'],
-         colors: ['#FFC0FF', '#FFD836', '#FF9A15', '#A5F7DE', '#51BC9D', '#AEC7FF', '#3E70DD'],
-         fireCount: 50,
-         count: 10
+         sprites: [
+            ...Array(10).fill('/assets/b1d4c5e276e3aaa8ec41e6014dd572b2.svg'), // Boost icon
+            '/assets/70275fe3104cf1d3388586ad8ffd478e.svg', // Triangle
+            // '/assets/c6ce0010471b65c0faeda6c53ab297bd.svg', // Star
+            // '/assets/e843c51c0eec3801b70cae5c45ad343f.svg', // Moon
+            // '/assets/7d883ba72b5dbc0229f5d1980205ee34.svg' // Rectangle
+         ],
+         colors: [
+            '#FFC0FF',
+            '#FFD836',
+            '#FF9A15',
+            '#A5F7DE',
+            '#51BC9D',
+            '#AEC7FF',
+            '#3E70DD',
+            '#ff8c8a'
+         ],
+         fireCount: Infinity,
+         count: 20,
+         size: 10
       }
 
       return (
@@ -54,6 +75,7 @@ module.exports = class BirthdayAlert extends React.Component {
                         y: 50
                      }}
                      angle={160}
+                     interval={100}
                      {...defaultProps}
                      {...props}
                   />
@@ -64,6 +86,7 @@ module.exports = class BirthdayAlert extends React.Component {
                         y: 50
                      }}
                      angle={-160}
+                     interval={100}
                      {...defaultProps}
                      {...props}
                   />
@@ -74,13 +97,15 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderAvatar() {
-
       return (
-         <div className='user-birthday-alert-avatar'>
-            <AnimatedAvatar
-               src={this.props.user.getAvatarURL()}
-               size='SIZE_120'
-            />
+         <div style={{ textAlign: 'center' }}>
+            <Hat className='user-birthday-alert-hat' width={250} height={250} />
+            <div className='user-birthday-alert-avatar'>
+               <AnimatedAvatar
+                  src={this.props.user.getAvatarURL()}
+                  size='SIZE_120'
+               />
+            </div>
          </div>
       )
    }
@@ -98,14 +123,14 @@ module.exports = class BirthdayAlert extends React.Component {
                onClick={() => void 0}
                {...defaultProps}
             >
-               Send them a personalized message
+               {Messages.UB_BIRTHDAY_ALERT_SEND_BUTTON}
             </Button>
             <Button
                color={Button.Colors.GREY}
                onClick={() => void 0}
                {...defaultProps}
             >
-               Dismiss
+               {Messages.UB_BIRTHDAY_ALERT_DISMISS_BUTTON}
             </Button>
          </div>
       )
@@ -114,7 +139,7 @@ module.exports = class BirthdayAlert extends React.Component {
    renderText() {
       return (
          <Header className='user-birthday-alert-text'>
-            It's eternal#1000's birthday today!
+            {Messages.UB_BIRTHDAY_ALERT_TEXT.format({ username: this.props.user.username })}
          </Header>
       )
    }

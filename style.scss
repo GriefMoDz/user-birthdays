@@ -51,6 +51,12 @@
    }
 }
 
+.user-birthday-alert-hat {
+   position: absolute;
+   transform: translateX(-19%) translateY(-65%);
+   z-index: 99999;
+}
+
 .user-birthday-alert-text {
    text-align: center;
    margin-bottom: 1em;
@@ -70,4 +76,9 @@
    button:last-child {
       margin-right: 0;
    }
+}
+
+/* Settings */
+.ub-settings-tab-bar {
+   margin-bottom: 20px;
 }

@@ -1,10 +1,16 @@
 {
    "UB_SWITCH_ICON_MESSAGE_HEADERS": "Message Headers",
-   "UB_SWITCH_ICON_MESSAGE_HEADERS_DESC": "(this will also show in the friends list)",
+   "UB_SWITCH_ICON_MESSAGE_HEADERS_DESC": "Display in message headers (FYI: this will also show it in the friends list)",
    "UB_SWITCH_ICON_MEMBERS_LIST": "Member List",
-   "UB_SWITCH_ICON_MEMBERS_LIST_DESC": "123",
+   "UB_SWITCH_ICON_MEMBERS_LIST_DESC": "Display in members list",
    "UB_SWITCH_ICON_DM": "Direct Messages",
-   "UB_SWITCH_ICON_DM_DESC": "123",
+   "UB_SWITCH_ICON_DM_DESC": "Dispaly in direct messages",
    "UB_SWITCH_ICON_USER_POPOUT": "User Popout / User Modal",
-   "UB_SWITCH_ICON_USER_POPOUT_DESC": "123"
+   "UB_SWITCH_ICON_USER_POPOUT_DESC": "Display in user popout and user modal",
+   "UB_BIRTHDAY_ICON_TOOLTIP": "Their birthday is today!",
+   "UB_BIRTHDAY_ALERT_TEXT": "It's {username}'s birthday today!",
+   "UB_BIRTHDAY_ALERT_SEND_BUTTON": "Send a personalized message",
+   "UB_BIRTHDAY_ALERT_DISMISS_BUTTON": "Dismiss",
+   "UB_SETTINGS_CUSTOMIZE_TAB": "Customize",
+   "UB_SETTINGS_MISCELLANEOUS_TAB": "Miscellaneous"
 }
