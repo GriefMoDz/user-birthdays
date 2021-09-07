@@ -87,17 +87,16 @@ class BirthdayStore extends Flux.Store {
       return false
    }
 
-   isBirthday(user) {
+   isBirthday(user, date = new Date()) {
       if (!user) throw 'No user provided!'
 
       let birthday = this.getUser(user)
 
       if (birthday && typeof birthday == 'number' && (birthday = new Date(birthday))) {
-         const today = new Date()
 
          if (
-            today.getDate() == birthday.getDate() &&
-            today.getMonth() == birthday.getMonth()
+            date.getDate() == birthday.getDate() &&
+            date.getMonth() == birthday.getMonth()
          ) {
             return true
          }
@@ -124,7 +123,7 @@ class BirthdayStore extends Flux.Store {
    }
 
    _persist() {
-      console.log('Saved')
+      console.log('saved')
       writeFileSync(birthdaysPath, JSON.stringify(birthdays, null, 3))
    }
 }

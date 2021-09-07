@@ -28,7 +28,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       this.interval = setInterval(() => Birthdays.check(), 1.8e+6)
       this.manager = Birthdays
-      Birthdays.check()
+      // Birthdays.check()
 
       this.patchBirthdayIcons()
       this.patchContextMenus()
@@ -179,6 +179,7 @@ module.exports = class UserBirthdays extends Plugin {
                   label='Edit'
                   action={() => openModal(() =>
                      <DatePicker
+                        avatars={true}
                         minDate={moment().startOf('year')}
                         maxDate={moment().endOf('year')}
                         selected={new Date(hasBday)}
@@ -206,6 +207,7 @@ module.exports = class UserBirthdays extends Plugin {
                label='Add Birthday'
                action={() => openModal(() =>
                   <DatePicker
+                     avatars={true}
                      minDate={moment().startOf('year')}
                      maxDate={moment().endOf('year')}
                      dateFormatCalendar='LLLL'

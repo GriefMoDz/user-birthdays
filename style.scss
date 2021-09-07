@@ -82,3 +82,20 @@
 .ub-settings-tab-bar {
    margin-bottom: 20px;
 }
+
+.ub-date-picker-avatars {
+   .react-datepicker__day-name {
+      width: 85px;
+   }
+   .react-datepicker__day {
+      font-size: 1rem;
+      width: 85px !important;
+      height: 85px !important;
+   }
+
+   .wrapper-3t9DeA {
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+   }
+}
