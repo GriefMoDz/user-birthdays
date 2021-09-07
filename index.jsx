@@ -1,20 +1,23 @@
 const { React, getModule, getModuleByDisplayName } = require('powercord/webpack')
 const { open: openModal, close: closeModal } = require('powercord/modal')
+const { findInReactTree, getOwnerInstance } = require('powercord/util')
 const { inject, uninject } = require('powercord/injector')
-const { findInReactTree } = require('powercord/util')
 const { Plugin } = require('powercord/entities')
 
 const moment = getModule(['createFromInputFallback'], false)
 const { MenuItem } = getModule(['MenuItem'], false)
 
 const { getDefaultMethodByKeyword } = require('./lib/Util')
+const { ComponentsToFix } = require('./lib/Constants')
 const Birthdays = require('./lib/Manager')
 const i18n = require('./i18n')
 
-const Cake = require('./components/icons/svg/Cake')
 const BirthdayIcon = require('./components/icons/Birthday')
 const Settings = require('./components/settings/Settings')
 const DatePicker = require('./components/misc/DatePicker')
+const DateUsers = require('./components/modals/DateUsers')
+const ToolbarIcon = require('./components/icons/Toolbar')
+const Cake = require('./components/icons/svg/Cake')
 
 module.exports = class UserBirthdays extends Plugin {
    startPlugin() {
@@ -29,11 +32,50 @@ module.exports = class UserBirthdays extends Plugin {
 
       this.interval = setInterval(() => Birthdays.check(), 1.8e+6)
       this.manager = Birthdays
-      // Birthdays.check()
+      Birthdays.check()
 
       this.patchSettingsPage()
       this.patchBirthdayIcons()
       this.patchContextMenus()
+      this.patchToolbar()
+   }
+
+   async patchToolbar() {
+      const HeaderBarContainer = getModule(m => m.default?.displayName == 'HeaderBarContainer', false)
+
+      this.patch('ub-header-bar', HeaderBarContainer.default.prototype, 'render', (_, res) => {
+         let toolbar = res.props.toolbar
+         if (toolbar) {
+            const children = toolbar.props.children
+            const index = children?.indexOf(children.find(i => i?.props?.className?.includes('search')))
+
+            if (index > -1) children.splice(index, 0,
+               <ToolbarIcon onClick={() => openModal(() => <DatePicker
+                  avatars={true}
+                  minDate={moment().startOf('year')}
+                  maxDate={moment().endOf('year')}
+                  selected={new Date()}
+                  dateFormatCalendar='LLLL'
+                  onSelect={(v) => {
+                     if (v?.getTime) {
+                        openModal(() => <DateUsers date={moment(v.getTime())} />)
+                     }
+                  }}
+               />)} />
+            )
+         }
+
+         return res
+      })
+
+      HeaderBarContainer.default.displayName = 'HeaderBarContainer'
+
+      const classes = getModule(['title', 'chatContent'], false)
+      const toolbar = document.querySelector(`.${classes.title}`)
+
+      if (toolbar) {
+         getOwnerInstance(toolbar)?.forceUpdate?.()
+      }
    }
 
    patchBirthdayIcons() {
@@ -63,7 +105,7 @@ module.exports = class UserBirthdays extends Plugin {
          return res
       })
 
-      ['ChannelMessage', 'InboxMessage'].forEach(component => {
+      ComponentsToFix.forEach(component => {
          const mdl = getModule(m => m.type?.displayName === component, false)
          if (mdl) {
             this.patch(`ub-message-header-fix-${component}`, mdl, 'type', (_, res) => {
@@ -181,7 +223,6 @@ module.exports = class UserBirthdays extends Plugin {
                   label='Edit'
                   action={() => openModal(() =>
                      <DatePicker
-                        avatars={true}
                         minDate={moment().startOf('year')}
                         maxDate={moment().endOf('year')}
                         selected={new Date(hasBday)}
@@ -209,7 +250,6 @@ module.exports = class UserBirthdays extends Plugin {
                label='Add Birthday'
                action={() => openModal(() =>
                   <DatePicker
-                     avatars={true}
                      minDate={moment().startOf('year')}
                      maxDate={moment().endOf('year')}
                      dateFormatCalendar='LLLL'
@@ -240,13 +280,13 @@ module.exports = class UserBirthdays extends Plugin {
             if (ubSettingsPage) {
                const SettingsElement = powercord.api.settings.tabs[this.entityID].render
                const getSectionTitle = () => <React.Fragment>
-                  <Cake className='ub-settings-cake-icon'/>
+                  <Cake className='ub-settings-cake-icon' />
                   {this.manifest.name}
                </React.Fragment>
 
                ubSettingsPage.element = () => <ErrorBoundary>
                   <FormSection title={getSectionTitle()} tag='h1'>
-                     <SettingsElement/>
+                     <SettingsElement />
                   </FormSection>
                </ErrorBoundary>
             }

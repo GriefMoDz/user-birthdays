@@ -37,6 +37,7 @@ module.exports = class DatePicker extends React.Component {
                      {res}
                   </div>
                ]
+
                const fetched = birthdays.map(u => getUser(u))
                res.push(
                   <VoiceUserSummaryItem

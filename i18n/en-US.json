@@ -12,5 +12,6 @@
    "UB_BIRTHDAY_ALERT_SEND_BUTTON": "Send a personalized message",
    "UB_BIRTHDAY_ALERT_DISMISS_BUTTON": "Dismiss",
    "UB_SETTINGS_CUSTOMIZE_TAB": "Customize",
-   "UB_SETTINGS_MISCELLANEOUS_TAB": "Miscellaneous"
+   "UB_SETTINGS_MISCELLANEOUS_TAB": "Miscellaneous",
+   "UB_DATE_USERS_MODAL_NOT_FOUND": "No birthdays were found on this day."
 }

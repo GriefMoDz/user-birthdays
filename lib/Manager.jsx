@@ -8,7 +8,7 @@ const { join } = require('path')
 const { StoreEmitters } = require('./Constants')
 const birthdaysPath = join(SETTINGS_FOLDER, '/Birthdays.json')
 
-const BirthdayAlert = require('../components/alert/BirthdayAlert')
+const BirthdayAlert = require('../components/modals/BirthdayAlert')
 
 const { getUser } = getModule(['getUser'], false)
 
