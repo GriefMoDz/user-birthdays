@@ -1,18 +1,16 @@
 const { React, Flux, FluxDispatcher, getModule } = require('powercord/webpack')
 const { open: openModal, close: closeModal } = require('powercord/modal')
-const { existsSync, readFileSync, writeFileSync } = require('fs')
-const { StoreEmitters } = require('./Constants')
-const { sleep } = require('powercord/util')
-
 const { SETTINGS_FOLDER } = require('powercord/constants')
-const birthdaysPath = require('path').join(
-   SETTINGS_FOLDER,
-   '/Birthdays.json'
-)
 
-const { getUser } = getModule(['getUser'], false)
+const { existsSync, readFileSync, writeFileSync } = require('fs')
+const { join } = require('path')
+
+const { StoreEmitters } = require('./Constants')
+const birthdaysPath = join(SETTINGS_FOLDER, '/Birthdays.json')
 
 const BirthdayAlert = require('../components/alert/BirthdayAlert')
+
+const { getUser } = getModule(['getUser'], false)
 
 if (!existsSync(birthdaysPath)) {
    writeFileSync(birthdaysPath, JSON.stringify({}))
