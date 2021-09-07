@@ -177,8 +177,8 @@ module.exports = class UserBirthdays extends Plugin {
                   id='Edit-birthday'
                   key='Edit-birthday'
                   label='Edit'
-                  action={() => openModal(() => {
-                     return <DatePicker
+                  action={() => openModal(() =>
+                     <DatePicker
                         minDate={moment().startOf('year')}
                         maxDate={moment().endOf('year')}
                         selected={new Date(hasBday)}
@@ -189,7 +189,7 @@ module.exports = class UserBirthdays extends Plugin {
                            toast('edited')
                         }}
                      />
-                  })}
+                  )}
                />
                <MenuItem
                   id='remove-birthday'
@@ -204,8 +204,8 @@ module.exports = class UserBirthdays extends Plugin {
                id='add-birthday'
                key='add-birthday'
                label='Add Birthday'
-               action={() => openModal(() => {
-                  return <DatePicker
+               action={() => openModal(() =>
+                  <DatePicker
                      minDate={moment().startOf('year')}
                      maxDate={moment().endOf('year')}
                      dateFormatCalendar='LLLL'
@@ -215,7 +215,7 @@ module.exports = class UserBirthdays extends Plugin {
                         Birthdays.setUser(user.id, v.valueOf())
                      }}
                   />
-               })}
+               )}
             />
          )
       }
