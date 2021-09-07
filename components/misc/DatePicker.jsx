@@ -11,8 +11,6 @@ module.exports = class DatePicker extends React.Component {
          const res = old(...args)
          const picker = res.props.children
 
-         console.log(picker.props)
-
          picker.props = {
             ...picker.props,
             ...this.props

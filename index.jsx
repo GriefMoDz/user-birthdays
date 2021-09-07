@@ -138,8 +138,12 @@ module.exports = class UserBirthdays extends Plugin {
 
    patchContextMenus() {
       const DMContextMenu = getModule(m => m.default?.displayName == 'DMUserContextMenu', false)
-      this.patch('mc-context-menu-dm', DMContextMenu, 'default', this.processContextMenu.bind(this))
+      this.patch('ud-context-menu-dm', DMContextMenu, 'default', this.processContextMenu.bind(this))
       DMContextMenu.default.displayName = 'DMUserContextMenu'
+
+      const GuildChannelUserContextMenu = getModule(m => m.default?.displayName == 'GuildChannelUserContextMenu', false)
+      this.patch('ud-context-menu-guild', GuildChannelUserContextMenu, 'default', this.processContextMenu.bind(this))
+      GuildChannelUserContextMenu.default.displayName = 'GuildChannelUserContextMenu'
    }
 
    processContextMenu([args], res) {
@@ -167,7 +171,6 @@ module.exports = class UserBirthdays extends Plugin {
                            maxDate={moment().endOf('year')}
                            selected={new Date(hasBday)}
                            dateFormatCalendar='LLLL'
-                           enableTabLoop={false}
                            onSelect={(v) => {
                               closeModal()
                               Birthdays.setUser(user.id, v.valueOf())
@@ -202,6 +205,7 @@ module.exports = class UserBirthdays extends Plugin {
                      return <DatePicker
                         minDate={moment(0)}
                         maxDate={moment(Date.now())}
+                        dateFormatCalendar='LLLL'
                         onSelect={(v) => {
                            closeModal()
                            if (!Object.keys(powercord.api.notices.toasts).find(t => t == 'ud-added-birthday')) {
