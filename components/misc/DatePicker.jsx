@@ -1,6 +1,5 @@
-const { React, getModuleByDisplayName, getModule } = require('powercord/webpack')
+const { React, getModuleByDisplayName } = require('powercord/webpack')
 const CalendarPicker = getModuleByDisplayName('CalendarPicker', false)
-const moment = getModule(['createFromInputFallback'], false)
 
 module.exports = class DatePicker extends React.Component {
    render() {

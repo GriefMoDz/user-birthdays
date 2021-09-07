@@ -37,10 +37,6 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderConfetti() {
-      // const variety = {
-      //    hexagon
-      // }
-
       const defaultProps = {
          sprites: [
             ...Array(10).fill('/assets/b1d4c5e276e3aaa8ec41e6014dd572b2.svg'), // Boost icon

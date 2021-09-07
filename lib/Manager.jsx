@@ -117,13 +117,12 @@ class BirthdayStore extends Flux.Store {
          if (this.isBirthday(user)) {
             user = await getUser(user).catch(() => null)
             if (!user) return
-            openModal(() => {
-               return (
-                  <div style={{ "width": "100%", "height": "100%" }}>
-                     <BirthdayAlert user={user} />
-                  </div>
-               )
-            })
+
+            openModal(() =>
+               <div style={{ width: '100%', height: '100%' }}>
+                  <BirthdayAlert user={user} />
+               </div>
+            )
          }
       }
    }

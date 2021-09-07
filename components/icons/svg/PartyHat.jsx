@@ -1,4 +1,4 @@
-const { React, getModule } = require('powercord/webpack')
+const { React } = require('powercord/webpack')
 
 module.exports = React.memo((props) => {
    return <svg
