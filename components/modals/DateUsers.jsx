@@ -56,7 +56,7 @@ module.exports = class DateUsers extends React.Component {
             <Modal.Content>
                {fetched.length ? fetched.filter(f => {
                   if (this.state.search != '') {
-                     if (!f.username.includes(this.state.search)) return false
+                     if (!f.username.toLowerCase().includes(this.state.search.toLowerCase())) return false
                   }
 
                   return true
