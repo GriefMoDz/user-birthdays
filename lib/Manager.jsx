@@ -31,8 +31,7 @@ class BirthdayStore extends Flux.Store {
    constructor(Dispatcher, handlers) {
       super(Dispatcher, handlers)
 
-      this._persist = global._.debounce(this._persist.bind(this), 1000)
-      this.addChangeListener(this._persist)
+      this.addChangeListener(this._persist.bind(this))
    }
 
    getBirthdays() {
