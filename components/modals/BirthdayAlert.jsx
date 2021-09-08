@@ -1,4 +1,4 @@
-const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
+const { React, getModule, messages, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { Icon } = require('powercord/components')
 const { close: closeModal } = require('powercord/modal')
 
@@ -9,6 +9,7 @@ const moment = getModule(['createFromInputFallback'], false)
 const AppLayer = getModuleByDisplayName('AppLayer', false)
 const CannonClasses = getModule(['cannonWrapper'], false)
 const Header = getModuleByDisplayName('Header', false)
+const DM = getModule(['ensurePrivateChannel'], false)
 
 const Hat = require('../icons/svg/PartyHat')
 
@@ -20,7 +21,8 @@ module.exports = class BirthdayAlert extends React.Component {
 
       this.state = {
          cannonRef: null,
-         sentSuccess: Button.Colors.BRAND
+         sent: false,
+         failed: false
       }
 
       this.ref = React.createRef()
@@ -113,6 +115,7 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderButtons() {
+      const { user } = this.props
       const defaultProps = {
          size: Button.Sizes.LARGE,
          look: Button.Looks.GHOST
@@ -121,22 +124,41 @@ module.exports = class BirthdayAlert extends React.Component {
       return (
          <div className='user-birthday-alert-buttons'>
             <Button
-               color={this.state.sentSuccess}
-               onClick={() => {
-                  if (this.state.sentSuccess == Button.Colors.GREEN) return
-                  this.setState({ sentSuccess: Button.Colors.GREEN })
+               color={this.state.sent ? this.state.failed ? Button.Colors.RED : Button.Colors.GREEN : Button.Colors.BRAND}
+               onClick={async () => {
+                  if (this.state.sent) return
+
+                  const dm = await DM.ensurePrivateChannel([user.id])
+                  if (dm) {
+
+                     //@to-do:
+                     //grab personalized message from settings
+
+                     const error = await messages.sendMessage(dm, {
+                        content: 'Happy birthday!',
+                        invalidEmojis: [],
+                        tts: false,
+                        validNonShortcutEmojis: []
+                     }).catch(() => null)
+
+                     this.manager.addDismiss(user.id, moment().year())
+
+                     if (error?.ok) return this.setState({ sent: true })
+                  }
+
+                  this.setState({ sent: true, failed: true })
                }}
                {...defaultProps}
             >
-               {this.state.sentSuccess == Button.Colors.BRAND ?
-                  Messages.UB_BIRTHDAY_ALERT_SEND_BUTTON :
-                  <Icon name='Checkmark' />
+               {this.state.sent == true ? this.state.failed ?
+                  <Icon name='Close' /> : <Icon name='Checkmark' /> :
+                  Messages.UB_BIRTHDAY_ALERT_SEND_BUTTON
                }
             </Button>
             <Button
                color={Button.Colors.GREY}
                onClick={() => {
-                  this.manager.addDismiss(this.props.user.id, moment().year())
+                  this.manager.addDismiss(user.id, moment().year())
                   closeModal()
                }}
                {...defaultProps}
@@ -148,9 +170,10 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderText() {
+      const { username } = this.props.user
       return (
          <Header className='user-birthday-alert-text'>
-            {Messages.UB_BIRTHDAY_ALERT_TEXT.format({ username: this.props.user.username })}
+            {Messages.UB_BIRTHDAY_ALERT_TEXT.format({ username })}
          </Header>
       )
    }
