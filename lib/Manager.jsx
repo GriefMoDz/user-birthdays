@@ -95,6 +95,7 @@ class BirthdayStore extends Flux.Store {
       const birthdays = this.getBirthdays()
 
       for (let user of Object.keys(birthdays)) {
+         if (user == 'dismissed') continue
          if (this.isBirthday(user) && this.getDismissed()[user] != (moment().year())) {
             user = await getUser(user).catch(() => null)
             if (!user) return
