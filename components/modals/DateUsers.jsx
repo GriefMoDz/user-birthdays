@@ -7,6 +7,8 @@ const Birthdays = require('../../lib/Manager')
 const NoResults = require('../misc/NoResults')
 const Card = require('../misc/Card')
 
+const { AnimatedAvatar } = getModule([ 'AnimatedAvatar' ], false)
+
 const SearchBar = getModule(m => m.defaultProps?.useKeyboardNavigation, false)
 const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
 const ChannelStore = getModule(['openPrivateChannel'], false)
@@ -59,6 +61,11 @@ module.exports = class DateUsers extends React.Component {
                   <Card
                      name={u.tag}
                      user={u}
+                     icon={(props) => <AnimatedAvatar
+                        src={u.getAvatarURL()}
+                        size='SIZE_32'
+                        {...props}
+                     />}
                      style={{ cursor: 'pointer' }}
                      onClick={() => {
                         ChannelStore.openPrivateChannel(u.id)

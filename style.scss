@@ -92,10 +92,15 @@
    margin-bottom: 20px;
 }
 
+.date-users-search {
+   margin-right: 24px;
+}
+
 .ub-date-picker-avatars {
    .react-datepicker__day-name {
       width: 85px;
    }
+
    .react-datepicker__day {
       display: table-cell;
       font-size: 1rem;
