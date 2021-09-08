@@ -1,10 +1,11 @@
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { Icon } = require('powercord/components')
-const { close } = require('powercord/modal')
+const { close: closeModal } = require('powercord/modal')
 
 const { ConfettiCannon, ConfettiCanvas } = getModule(['ConfettiCannon'], false)
 const { default: Button } = getModule(m => m.ButtonLink, false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
+const moment = getModule(['createFromInputFallback'], false)
 const AppLayer = getModuleByDisplayName('AppLayer', false)
 const CannonClasses = getModule(['cannonWrapper'], false)
 const Header = getModuleByDisplayName('Header', false)
@@ -14,6 +15,8 @@ const Hat = require('../icons/svg/PartyHat')
 module.exports = class BirthdayAlert extends React.Component {
    constructor(props) {
       super(props)
+
+      this.manager = props.manager
 
       this.state = {
          cannonRef: null,
@@ -132,7 +135,10 @@ module.exports = class BirthdayAlert extends React.Component {
             </Button>
             <Button
                color={Button.Colors.GREY}
-               onClick={close}
+               onClick={() => {
+                  this.manager.addDismiss(this.props.user.id, moment().year())
+                  closeModal()
+               }}
                {...defaultProps}
             >
                {Messages.UB_BIRTHDAY_ALERT_DISMISS_BUTTON}

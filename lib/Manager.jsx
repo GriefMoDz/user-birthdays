@@ -1,15 +1,16 @@
 const { React, Flux, FluxDispatcher, getModule } = require('powercord/webpack')
-const { open: openModal, close: closeModal } = require('powercord/modal')
+const { open: openModal } = require('powercord/modal')
 const { SETTINGS_FOLDER } = require('powercord/constants')
 
 const { existsSync, readFileSync, writeFileSync } = require('fs')
 const { join } = require('path')
 
-const { StoreEmitters } = require('./Constants')
+const { ActionTypes } = require('./Constants')
 const birthdaysPath = join(SETTINGS_FOLDER, '/Birthdays.json')
 
 const BirthdayAlert = require('../components/modals/BirthdayAlert')
 
+const moment = getModule(['createFromInputFallback'], false)
 const { getUser } = getModule(['getUser'], false)
 
 if (!existsSync(birthdaysPath)) {
@@ -32,15 +33,6 @@ class BirthdayStore extends Flux.Store {
 
       this._persist = global._.debounce(this._persist.bind(this), 1000)
       this.addChangeListener(this._persist)
-
-      StoreEmitters.forEach(e => {
-         const old = this[e]
-         this[e] = (...args) => {
-            const res = old.bind(this)(...args)
-            this.emitChange()
-            return res
-         }
-      })
    }
 
    getBirthdays() {
@@ -60,31 +52,26 @@ class BirthdayStore extends Flux.Store {
    }
 
    setUser(user, birthday = Date.now()) {
-      if (!user) throw 'No user provided!'
-
-      if (typeof user == 'string') {
-         birthdays[user] = birthday
-         return birthdays[user]
-      } else if (user?.id) {
-         birthdays[user.id] = birthday
-         return birthdays[user.id]
-      }
-
-      return null
+      FluxDispatcher.dispatch({
+         type: ActionTypes.SET_USER,
+         user,
+         birthday
+      })
    }
 
    removeUser(user) {
-      if (!user) throw 'No user provided!'
+      FluxDispatcher.dispatch({
+         type: ActionTypes.REMOVE_USER,
+         user
+      })
+   }
 
-      if (typeof user == 'string') {
-         delete birthdays[user]
-         return true
-      } else if (user?.id) {
-         delete birthdays[user.id]
-         return true
-      }
-
-      return false
+   addDismiss(user, year) {
+      FluxDispatcher.dispatch({
+         type: ActionTypes.ADD_DISMISSED,
+         user,
+         year
+      })
    }
 
    isBirthday(user, date = new Date()) {
@@ -109,23 +96,63 @@ class BirthdayStore extends Flux.Store {
       const birthdays = this.getBirthdays()
 
       for (let user of Object.keys(birthdays)) {
-         if (this.isBirthday(user)) {
+         if (this.isBirthday(user) && this.getDismissed()[user] != (moment().year())) {
             user = await getUser(user).catch(() => null)
             if (!user) return
 
             openModal(() =>
                <div style={{ width: '100%', height: '100%' }}>
-                  <BirthdayAlert user={user} />
+                  <BirthdayAlert manager={this} user={user} />
                </div>
             )
          }
       }
    }
 
+   getDismissed() {
+      return birthdays['dismissed'] ?? {}
+   }
+
    _persist() {
-      console.log('saved')
       writeFileSync(birthdaysPath, JSON.stringify(birthdays, null, 3))
    }
 }
 
-module.exports = new BirthdayStore(FluxDispatcher, {})
+module.exports = new BirthdayStore(FluxDispatcher, {
+   [ActionTypes.ADD_DISMISSED]: ({ user, year }) => {
+      if (!birthdays['dismissed']) birthdays['dismissed'] = {}
+      birthdays['dismissed'][user] = year
+   },
+
+   [ActionTypes.REMOVE_USER]: ({ user }) => {
+      if (!user) throw 'No user provided!'
+
+      if (typeof user == 'string') {
+         delete birthdays[user]
+         delete birthdays['dismissed']?.[user]
+         return true
+      } else if (user?.id) {
+         delete birthdays[user.id]
+         delete birthdays['dismissed']?.[user.id]
+         return true
+      }
+
+      return false
+   },
+
+   [ActionTypes.SET_USER]: ({ user, birthday }) => {
+      if (!user) throw 'No user provided!'
+
+      if (typeof user == 'string') {
+         birthdays[user] = birthday
+         delete birthdays['dismissed']?.[user]
+         return birthdays[user]
+      } else if (user?.id) {
+         birthdays[user.id] = birthday
+         delete birthdays['dismissed']?.[user.id]
+         return birthdays[user.id]
+      }
+
+      return null
+   }
+})
