@@ -15,5 +15,6 @@
    "UB_SETTINGS_MISCELLANEOUS_TAB": "Miscellaneous",
    "UB_DATE_USERS_MODAL_NOT_FOUND": "No birthdays were found on this day.",
    "UB_DATE_USERS_EDIT_BIRTHDAY": "Edit birthday",
-   "UB_DATE_USERS_REMOVE_BIRTHDAY": "Remove birthday"
+   "UB_DATE_USERS_REMOVE_BIRTHDAY": "Remove birthday",
+   "UB_DATE_USERS_TIP": "You can click on a card to open your direct messages with that person."
 }

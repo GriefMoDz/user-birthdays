@@ -1,129 +1,133 @@
-
 /* Birthday Icon */
-#user-birthday {
-   display: inline;
 
-   svg {
-      color: var(--channels-default);
-      margin-left: 4px;
-      vertical-align: -.025em;
-   }
+#user-birthday {
+  display: inline;
+
+  svg {
+    color: var(--channels-default);
+    margin-left: 4px;
+    vertical-align: -0.025em;
+  }
 }
 
 .peopleListItem-2nzedh .userInfo-2zN2z8 {
-   #user-birthday {
-     visibility: hidden;
-   }
- 
-   &.hovered-15FzL3 {
-      #user-birthday {
-       visibility: visible;
-     }
-   }
+  #user-birthday {
+    visibility: hidden;
+  }
+
+  &.hovered-15FzL3 #user-birthday {
+    visibility: visible;
+  }
 }
 
-.repliedMessage-VokQwo {
-   #user-birthday svg {
-      margin-left: 0;
-      margin-right: 4px;
-   }
+.repliedMessage-VokQwo #user-birthday svg {
+  margin-left: 0;
+  margin-right: 4px;
 }
 
 .ub-settings-cake-icon {
-   width: 24px;
-   height: 24px;
-   margin-right: 5px;
-   vertical-align: bottom;
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
+  vertical-align: bottom;
 }
 
 /* Birthday Alert */
+
 .user-birthday-alert-container {
-   position: absolute;
-   top: 0;
-   left: 0;
-   bottom: 0;
-   right: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 
 .user-birthday-alert-avatar {
-   display: flex;
-   justify-content: center;
+  display: flex;
+  justify-content: center;
+  margin-top: 15em;
+  margin-bottom: 5em;
 
-   margin-top: 15em;
-   margin-bottom: 5em;
-
-   > div {
-      width: 240px !important;
-      height: 240px !important;
-   }
+  > div {
+    width: 240px !important;
+    height: 240px !important;
+  }
 }
 
 .user-birthday-alert-hat {
-   position: absolute;
-   transform: translateX(-19%) translateY(-65%);
-   z-index: 99999;
+  position: absolute;
+  transform: translateX(-19%) translateY(-65%);
+  z-index: 99999;
 }
 
 .user-birthday-alert-text {
-   text-align: center;
-   font-size: 48px;
-
-   margin-bottom: 1em;
-   line-height: inherit;
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 1em;
+  line-height: inherit;
 }
 
 .user-birthday-alert-buttons {
-   display: flex;
-   justify-content: center;
+  display: flex;
+  justify-content: center;
 
-   button {
-      width: 25%;
-      margin-right: 5em;
-      pointer-events: all;
-   }
+  button {
+    width: 25%;
+    margin-right: 5em;
+    pointer-events: all;
 
-   button:last-child {
+    &:last-child {
       margin-right: 0;
-   }
+    }
+  }
 }
 
 /* Settings */
+
 .ub-settings-tab-bar {
-   margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .date-users-search {
-   margin-right: 24px;
+  margin-right: 24px;
 }
 
 .ub-date-picker-avatars {
-   .react-datepicker__day-name {
-      width: 85px;
-   }
+  .react-datepicker__day-name {
+    width: 85px;
+  }
 
-   .react-datepicker__day {
-      display: table-cell;
-      font-size: 1rem;
-      width: 85px !important;
-      height: 85px !important;
-   }
+  .react-datepicker__day {
+    display: table-cell;
+    font-size: 1rem;
+    width: 85px !important;
+    height: 85px !important;
+  }
 
-   .ub-date-picker-birthday-users {
-      justify-content: center;
-      position: absolute;
-      width: 100%;
-      margin-top: -7.5px;
-   }
+  .ub-date-picker-birthday-users {
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    margin-top: -7.5px;
+  }
 
-   .ub-date-number {
-      align-items: center;
+  .ub-date-number {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+
+    p {
       display: flex;
-      height: 100%;
-      justify-content: center;
-   }
-
-   .ub-date-number p {
-      display: flex;
       align-items: center;
+    }
+  }
+}
+
+/* Date Users modal */
+.ub-date-users {
+   &-tip {
+      margin-bottom: -2.5px;
+      margin-right: 5px;
    }
 }

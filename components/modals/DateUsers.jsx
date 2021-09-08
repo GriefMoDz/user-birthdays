@@ -1,7 +1,7 @@
+const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { open: openModal, close: closeModal, closeAll } = require('powercord/modal')
-const { React, getModule, i18n: { Messages } } = require('powercord/webpack')
 const { Modal } = require('powercord/components/modal')
-const { FormTitle } = require('powercord/components')
+const { FormTitle, Flex, Icon } = require('powercord/components')
 const Birthdays = require('../../lib/Manager')
 
 const DatePicker = require('../misc/DatePicker')
@@ -13,6 +13,7 @@ const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const ChannelStore = getModule(['openPrivateChannel'], false)
 const moment = getModule(['createFromInputFallback'], false)
+const FormText = getModuleByDisplayName('FormText', false)
 const { getStatus } = getModule(['getStatus'], false)
 const classes = getModule(['tabBarContainer'], false)
 
@@ -37,7 +38,7 @@ module.exports = class DateUsers extends React.Component {
       const fetched = birthdays.map(u => getUser(u))
 
       return (
-         <Modal className='date-users' size={Modal.Sizes.LARGE} style={{ borderRadius: '8px' }}>
+         <Modal className='ub-date-users' size={Modal.Sizes.LARGE} style={{ borderRadius: '8px' }}>
             <Modal.Header className={classes.header}>
                <FormTitle tag='h4' className='date-users-header'>
                   Birthdays for {this.props.date.format('D MMMM')}
@@ -104,6 +105,14 @@ module.exports = class DateUsers extends React.Component {
                   />
                ) : <NoResults />}
             </Modal.Content>
+            <Modal.Footer>
+               <Flex>
+                  <FormText>
+                     <Icon className='ub-date-users-tip' name='Info' />
+                     {Messages.UB_DATE_USERS_TIP}
+                  </FormText>
+               </Flex>
+            </Modal.Footer>
          </Modal>
       )
    }
