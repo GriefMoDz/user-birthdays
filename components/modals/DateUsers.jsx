@@ -80,7 +80,10 @@ module.exports = class DateUsers extends React.Component {
                                  maxDate={moment().endOf('year')}
                                  selected={new Date(date)}
                                  dateFormatCalendar='LLLL'
-                                 onSelect={(v) => Birthdays.setUser(u.id, v.valueOf())}
+                                 onSelect={(v) => {
+                                    closeModal()
+                                    Birthdays.setUser(u.id, v.valueOf())
+                                 }}
                               />)
                            }
                         },
