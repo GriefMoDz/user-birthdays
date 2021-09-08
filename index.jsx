@@ -47,7 +47,7 @@ module.exports = class UserBirthdays extends Plugin {
          let toolbar = res.props.toolbar
          if (toolbar) {
             const children = toolbar.props.children
-            const index = children?.indexOf(children.find(i => i?.props?.className?.includes('search')))
+            const index = children?.indexOf(children.find(i => i?.type?.toString?.()?.includes('Unreads')))
 
             if (index > -1) children.splice(index, 0,
                <ToolbarIcon onClick={() => openModal(() => <DatePicker

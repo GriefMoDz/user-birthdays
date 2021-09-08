@@ -110,7 +110,6 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderButtons() {
-      const { user } = this.props
       const defaultProps = {
          size: Button.Sizes.LARGE,
          look: Button.Looks.GHOST

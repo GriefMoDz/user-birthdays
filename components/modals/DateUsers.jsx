@@ -1,17 +1,19 @@
-const { FormTitle } = require('powercord/components')
-const { close: closeModal, closeAll } = require('powercord/modal')
-const { React, getModule } = require('powercord/webpack')
+const { open: openModal, close: closeModal, closeAll } = require('powercord/modal')
+const { React, getModule, i18n: { Messages } } = require('powercord/webpack')
 const { Modal } = require('powercord/components/modal')
+const { FormTitle } = require('powercord/components')
 const Birthdays = require('../../lib/Manager')
 
+const DatePicker = require('../misc/DatePicker')
 const NoResults = require('../misc/NoResults')
 const Card = require('../misc/Card')
 
-const { AnimatedAvatar } = getModule([ 'AnimatedAvatar' ], false)
-
 const SearchBar = getModule(m => m.defaultProps?.useKeyboardNavigation, false)
 const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
+const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const ChannelStore = getModule(['openPrivateChannel'], false)
+const moment = getModule(['createFromInputFallback'], false)
+const { getStatus } = getModule(['getStatus'], false)
 const classes = getModule(['tabBarContainer'], false)
 
 module.exports = class DateUsers extends React.Component {
@@ -64,9 +66,34 @@ module.exports = class DateUsers extends React.Component {
                      icon={(props) => <AnimatedAvatar
                         src={u.getAvatarURL()}
                         size='SIZE_32'
+                        status={getStatus(u.id)}
                         {...props}
                      />}
                      style={{ cursor: 'pointer' }}
+                     buttons={[
+                        {
+                           type: 'button',
+                           name: Messages.UB_DATE_USERS_EDIT_BIRTHDAY,
+                           onClick: () => {
+                              return openModal(() => <DatePicker
+                                 minDate={moment().startOf('year')}
+                                 maxDate={moment().endOf('year')}
+                                 selected={new Date(date)}
+                                 dateFormatCalendar='LLLL'
+                                 onSelect={(v) => Birthdays.setUser(u.id, v.valueOf())}
+                              />)
+                           }
+                        },
+                        {
+                           type: 'button',
+                           name: Messages.UB_DATE_USERS_REMOVE_BIRTHDAY,
+                           color: 'colorDanger',
+                           onClick: () => {
+                              Birthdays.removeUser(u.id)
+                              this.forceUpdate()
+                           }
+                        }
+                     ]}
                      onClick={() => {
                         ChannelStore.openPrivateChannel(u.id)
                         closeAll()
