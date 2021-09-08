@@ -91,7 +91,7 @@ module.exports = class UserBirthdays extends Plugin {
          return res
       })
 
-      const ConnectedBirthdayIcon = this.settings.connectStore(BirthdayIcon)
+      const ConnectedBirthdayIcon = powercord.api.settings.connectStores('user-birthdays')(BirthdayIcon)
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
       this.patch('ub-message-header2', UsernameHeader, 'default', ([{ __ubDefaultProps: defaultProps }], res) => {
@@ -100,7 +100,6 @@ module.exports = class UserBirthdays extends Plugin {
                <ConnectedBirthdayIcon {...defaultProps} />
             ])
          }
-
 
          return res
       })

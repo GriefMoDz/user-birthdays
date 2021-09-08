@@ -14,13 +14,15 @@ module.exports = class Settings extends React.Component {
    constructor(props) {
       super(props)
 
+      this.settings = powercord.api.settings._fluxProps('user-birthdays')
+
       this.state = {
          visibility: false
       }
    }
 
    render() {
-      const { getSetting, updateSetting, toggleSetting } = this.props
+      const { getSetting, updateSetting, toggleSetting } = this.settings
       const { visibility } = this.state
 
       return (
@@ -54,13 +56,19 @@ module.exports = class Settings extends React.Component {
                      <SwitchItem
                         value={getSetting(id, defaultValue)}
                         onChange={() => toggleSetting(id, defaultValue)}
-                        note={getLanguageKey(`UB_SWITCH_${note.replace('%', '')}`)}
+                        note={getLanguageKey(`UB_SWITCH_${note.replace(/\%/gmi, '')}`)}
                      >
-                        {getLanguageKey(`UB_SWITCH_${title.replace('%', '')}`)}
+                        {getLanguageKey(`UB_SWITCH_${title.replace(/\%/gmi, '')}`)}
                      </SwitchItem>
                   )
                })}
             </Category>
+            <TextInput
+               defaultValue={getSetting('customMessage', 'Happy birthday!')}
+               onChange={p => updateSetting('customMessage', !p ? 'Happy birthday!' : p)}
+            >
+               Customized message
+            </TextInput>
          </React.Fragment>
       )
    }
