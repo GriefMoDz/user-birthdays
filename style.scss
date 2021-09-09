@@ -94,14 +94,14 @@
 
 .ub-date-picker-avatars {
   .react-datepicker__day-name {
-    width: 85px;
+    width: 10vh;
   }
 
   .react-datepicker__day {
     display: table-cell;
     font-size: 1rem;
-    width: 85px !important;
-    height: 85px !important;
+    width: 10vh !important;
+    height: 10vh !important;
   }
 
   .ub-date-picker-day {
@@ -111,8 +111,15 @@
     height: 100%;
   }
 
-  .ub-date-picker-number {
-    height: 32px;
+  @media only screen and (max-height: 575px) {
+    .wrapper-3t9DeA {
+      display: none;
+    }
+  }
+  .wrapper-3t9DeA {
+    margin-top: -10px;
+    width: 2.75vh !important;
+    height: 2.75vh !important;
   }
 }
 
