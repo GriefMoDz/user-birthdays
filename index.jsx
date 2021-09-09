@@ -246,7 +246,7 @@ module.exports = class UserBirthdays extends Plugin {
             <MenuItem
                id='add-birthday'
                key='add-birthday'
-               label='Add Birthday'
+               label='Add birthday'
                action={() => openModal(() =>
                   <DatePicker
                      minDate={moment().startOf('year')}
