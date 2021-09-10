@@ -95,7 +95,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
       this.patch('ub-message-header2', UsernameHeader, 'default', ([{ __ubDefaultProps: defaultProps }], res) => {
-         if (defaultProps && Birthdays.isBirthday(defaultProps.user)) {
+         if (defaultProps && (Birthdays.isBirthday(defaultProps.user) || defaultProps.user?.forceBirthday)) {
             res.props.children.splice(2, 0, [
                <ConnectedBirthdayIcon {...defaultProps} />
             ])
@@ -123,7 +123,7 @@ module.exports = class UserBirthdays extends Plugin {
       this.patch('ub-member-list', MemberListItem.prototype, 'renderDecorators', function (_, res) {
          const defaultProps = { user: this.props.user, location: 'members-list' }
 
-         if (Birthdays.isBirthday(this.props.user)) {
+         if (Birthdays.isBirthday(this.props.user) || this.props.user?.forceBirthday) {
             res.props.children.unshift([
                <ConnectedBirthdayIcon {...defaultProps} />
             ])
@@ -146,7 +146,7 @@ module.exports = class UserBirthdays extends Plugin {
          const user = props.user || userStore.findByTag(props.name, props.discriminator)
          const defaultProps = { user, location: 'user-popout-modal' }
 
-         if (Birthdays.isBirthday(user)) {
+         if (Birthdays.isBirthday(user) || user?.forceBirthday) {
             res.props.children.splice(2, 0, [
                <ConnectedBirthdayIcon {...defaultProps} />
             ])
@@ -163,8 +163,7 @@ module.exports = class UserBirthdays extends Plugin {
             return res
          }
 
-
-         if (Birthdays.isBirthday(this.props.user)) {
+         if (Birthdays.isBirthday(this.props.user) || this.props.user?.forceBirthday) {
             const defaultProps = { user: this.props.user, location: 'direct-messages' }
 
             const old = res.props.decorators

@@ -2,11 +2,13 @@ const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require
 const { SwitchItem, TextInput, RadioGroup } = require('powercord/components/settings')
 const { Icon } = require('powercord/components')
 const { SettingsSections } = require('../../lib/Constants')
+const Previews = require('./previews')
 
 const { tabBar, tabBarItem } = getModule(['tabBar', 'tabBarItem'], false)
 
 const TabBar = getModuleByDisplayName('TabBar', false)
 const SettingsCard = require('./SettingsCard')
+const PlainSwitch = require('./PlainSwitch')
 
 const getLanguageKey = (key) => {
    return Messages[key]
@@ -30,10 +32,11 @@ module.exports = class Settings extends React.Component {
 
          return <SettingsCard
             buttonText='View Settings'
+            hasNextSection={true}
             onButtonClick={() => this.setState({ currentSettingsSection: section })}
             name={name}
-            details={[ { text: `${Object.keys(settings).length} ${Messages.SETTINGS}` } ]}
-            icon={(props) => React.createElement(Icon, { name: icon, ...props })}
+            details={[{ text: `${Object.keys(settings).length} ${Messages.SETTINGS}` }]}
+            icon={(props) => <Icon name={icon} {...props} />}
          />
       })
    }
@@ -72,26 +75,43 @@ module.exports = class Settings extends React.Component {
       const { settings } = SettingsSections[section]
 
       Object.keys(settings).forEach(key => {
-        const setting = settings[key]
+         const setting = settings[key]
 
-        switch (setting.type) {
-          case 'radio':
-            return elements.push(React.createElement(RadioGroup, {
-              options: setting.options,
-              note: getLanguageKey(`UB_RADIO_${setting.note.replace(/\%/gmi, '')}`),
-              value: getSetting(key, setting.defaultValue),
-              onChange: (e) => updateSetting(key, e.value)
-            }, getLanguageKey(`UB_RADIO_${setting.title.replace(/\%/gmi, '')}`)))
-          case 'switch':
-            elements.push(React.createElement(SwitchItem, {
-              note: getLanguageKey(`UB_SWITCH_${setting.note.replace(/\%/gmi, '')}`),
-              value: getSetting(key, setting.defaultValue),
-              onChange: typeof setting.onChange === 'function' ? setting.onChange : () => toggleSetting(key, setting.defaultValue),
-              disabled: setting.disabled !== void 0
-                ? (typeof setting.disabled === 'function' ? setting.disabled() : setting.disabled)
-                : false
-            }, getLanguageKey(`UB_SWITCH_${setting.title.replace(/\%/gmi, '')}`)))
-        }
+         switch (setting.type) {
+            case 'radio':
+               return elements.push(<RadioGroup
+                  options={setting.options}
+                  note={getLanguageKey(`UB_RADIO_${setting.note.replace(/\%/gmi, '')}`)}
+                  value={getSetting(key, setting.defaultValue)}
+                  onChange={(e) => updateSetting(key, e.value)}
+               >{getLanguageKey(`UB_RADIO_${setting.title.replace(/\%/gmi, '')}`)}</RadioGroup>)
+            case 'switch':
+               const Type = setting.preview ? PlainSwitch : SwitchItem
+               const Component = (
+                  <Type
+                     note={getLanguageKey(`UB_SWITCH_${setting.note.replace(/\%/gmi, '')}`)}
+                     value={getSetting(key, setting.defaultValue)}
+                     onChange={typeof setting.onChange === 'function' ? setting.onChange : () => toggleSetting(key, setting.defaultValue)}
+                     disabled={typeof setting.disabled === 'function' ? setting.disabled() : setting.disabled}
+                  >
+                     {getLanguageKey(`UB_SWITCH_${setting.title.replace(/\%/gmi, '')}`)}
+                  </Type>
+               )
+
+               if (setting.preview) {
+                  const Preview = Previews[Object.keys(Previews).find(p => key.includes(p))] || 'div'
+
+                  return elements.push(
+                     <div className='ub-settings-preview-card'>
+                        <Preview setting={setting}>
+                           {Component}
+                        </Preview>
+                     </div>
+                  )
+               } else {
+                  return elements.push(Component)
+               }
+         }
       })
 
       return elements

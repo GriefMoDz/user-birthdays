@@ -10,12 +10,12 @@
   }
 }
 
-.peopleListItem-2nzedh .userInfo-2zN2z8 {
+.peopleListItem-2nzedh div[class*='userInfo'] {
   #user-birthday {
     visibility: hidden;
   }
 
-  &.hovered-15FzL3 #user-birthday {
+  &[class*='hovered'] #user-birthday {
     visibility: visible;
   }
 }
@@ -25,11 +25,54 @@
   margin-right: 4px;
 }
 
-.ub-settings-cake-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 5px;
-  vertical-align: bottom;
+/* Settings */
+
+.ub-settings {
+  &-preview-card {
+    background-color: var(--background-secondary);
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+  
+  &-cake-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+    vertical-align: bottom;
+  }
+
+  &-tab-bar {
+    margin-bottom: 20px;
+  }
+
+  &-plain-switch {
+    margin-bottom: 0;
+  }
+  
+  &-preview-card {
+    a[class*='channel'] {
+      max-width: unset;
+      margin-right: 8px;
+
+      div[class*='children'] {
+        display: none;
+      }
+    }
+    
+    div[class*='divider'] {
+      margin-bottom: 15px;
+      margin-top: 15px
+    }
+  }
+
+  &-message-header-preview div[class*='message'] {
+    background: none !important;
+  }
+
+  &-message-header-preview div[class*='buttonContainer'] {
+    display: none;
+  }
 }
 
 /* Birthday Alert */
@@ -82,12 +125,6 @@
   }
 }
 
-/* Settings */
-
-.ub-settings-tab-bar {
-  margin-bottom: 20px;
-}
-
 .date-users-search {
   margin-right: 24px;
 }
@@ -112,11 +149,12 @@
   }
 
   @media only screen and (max-height: 575px) {
-    .wrapper-3t9DeA {
+    div[class*='wrapper'] {
       display: none;
     }
   }
-  .wrapper-3t9DeA {
+
+  div[class*='wrapper'] {
     margin-top: -10px;
     width: 2.75vh !important;
     height: 2.75vh !important;
@@ -124,6 +162,7 @@
 }
 
 /* Date Users modal */
+
 .ub-date-users {
    &-tip {
       margin-bottom: -2.5px;
