@@ -146,6 +146,8 @@ module.exports = class UserBirthdays extends Plugin {
          const user = props.user || userStore.findByTag(props.name, props.discriminator)
          const defaultProps = { user, location: 'user-popout-modal' }
 
+         if (props.className.includes('discordTag')) defaultProps.location = 'friends-list'
+
          if (Birthdays.isBirthday(user) || user?.forceBirthday) {
             res.props.children.splice(2, 0, [
                <ConnectedBirthdayIcon {...defaultProps} />

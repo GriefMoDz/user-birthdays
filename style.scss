@@ -55,6 +55,10 @@
   }
   
   &-preview-card {
+    &:active {
+      pointer-events: none;
+    }
+
     a[class*='channel'] {
       max-width: unset;
       margin-right: 8px;
@@ -75,6 +79,31 @@
     box-shadow: var(--elevation-high);
     -webkit-box-shadow: var(--elevation-high);
     border-radius: 8px;
+  }
+
+  &-friends-list-preview div[class*='peopleListItem'] {
+    border-top: none;
+    margin: 0 !important;
+    padding: 0px;
+
+    div[class*='listItemContents'] {
+      margin-left: 15px !important;
+      margin-right: 15px !important;
+    }
+
+    div[class*='discordTag'] {
+      span {
+        visibility: visible !important;
+      }
+
+      div {
+        visibility: visible !important;
+      }
+    }
+    
+    div[class*='actions'] {
+      display: none;
+    }
   }
 
   &-message-header-preview div[class*='message'] {
