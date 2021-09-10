@@ -16,7 +16,6 @@ module.exports = class FriendsList extends React.Component {
          <div className='ub-settings-friends-list-preview'>
             <FriendRow
                user={user}
-               onContextMenu={() => { }}
                status={getStatus(user.id)}
                activities={getActivities(user.id)}
             />
