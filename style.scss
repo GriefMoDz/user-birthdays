@@ -55,10 +55,6 @@
   }
 
   &-preview-card {
-    &:active {
-      pointer-events: none;
-    }
-
     a[class*='channel'] {
       max-width: unset;
       margin-right: 8px;
