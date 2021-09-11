@@ -34,7 +34,7 @@
     border-radius: 16px;
     margin-bottom: 20px;
   }
-  
+
   &-cake-icon {
     width: 24px;
     height: 24px;
@@ -53,7 +53,7 @@
   &-plain-switch {
     margin-bottom: 0;
   }
-  
+
   &-preview-card {
     &:active {
       pointer-events: none;
@@ -67,18 +67,20 @@
         display: none;
       }
     }
-    
+
     div[class*='divider'] {
       margin-bottom: 15px;
       margin-top: 15px
     }
   }
 
-  &-user-popout-preview div[class*='headerTop'] {
+  &-user-popout-preview {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
     background: var(--background-floating);
     box-shadow: var(--elevation-high);
     -webkit-box-shadow: var(--elevation-high);
-    border-radius: 8px;
   }
 
   &-friends-list-preview div[class*='peopleListItem'] {
@@ -100,7 +102,7 @@
         visibility: visible !important;
       }
     }
-    
+
     div[class*='actions'] {
       display: none;
     }
