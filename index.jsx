@@ -82,10 +82,10 @@ module.exports = class UserBirthdays extends Plugin {
       const MessageHeader = getModule(m => getDefaultMethodByKeyword(m, 'showTimestampOnHover'), false)
       this.patch('ub-message-header1', MessageHeader, 'default', ([{ message: { author: user } }], res) => {
          const defaultProps = { user, location: 'message-headers' }
-         const usernameHeader = findInReactTree(res, n => Array.isArray(n?.props?.children) && n.props.children.find(c => c?.props?.message))
+         const header = findInReactTree(res, n => Array.isArray(n?.props?.children) && n.props.children.find(c => c?.props?.message))
 
-         if (usernameHeader?.props?.children && usernameHeader?.props?.children[0] && usernameHeader?.props?.children[0].props) {
-            usernameHeader.props.children[0].props.__ubDefaultProps = defaultProps
+         if (header?.props?.children?.[0]?.props) {
+            header.props.children[0].props.user_birthdays = defaultProps
          }
 
          return res
@@ -94,7 +94,7 @@ module.exports = class UserBirthdays extends Plugin {
       const ConnectedBirthdayIcon = powercord.api.settings.connectStores('user-birthdays')(BirthdayIcon)
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
-      this.patch('ub-message-header2', UsernameHeader, 'default', ([{ __ubDefaultProps: defaultProps }], res) => {
+      this.patch('ub-message-header2', UsernameHeader, 'default', ([{ user_birthdays: defaultProps }], res) => {
          if (defaultProps && (Birthdays.isBirthday(defaultProps.user) || defaultProps.user?.forceBirthday)) {
             res.props.children.splice(2, 0, [
                <ConnectedBirthdayIcon {...defaultProps} />
