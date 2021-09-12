@@ -2,7 +2,6 @@ const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require
 const { open: openModal, close: closeModal, closeAll } = require('powercord/modal')
 const { Modal } = require('powercord/components/modal')
 const { FormTitle, Flex, Icon } = require('powercord/components')
-const Birthdays = require('../../lib/Manager')
 
 const DatePicker = require('../misc/DatePicker')
 const NoResults = require('../misc/NoResults')
@@ -27,7 +26,7 @@ module.exports = class DateUsers extends React.Component {
    }
 
    render() {
-      const { date } = this.props
+      const { date, manager: Birthdays } = this.props
       const users = Birthdays.getBirthdays()
 
       const birthdays = Object.keys(users).map(user => {

@@ -1,12 +1,12 @@
 const { React, getModuleByDisplayName, getModule } = require('powercord/webpack')
 const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
-const Birthdays = require('../../lib/Manager')
 
 const CalendarPicker = getModuleByDisplayName('CalendarPicker', false)
 const VoiceUserSummaryItem = getModuleByDisplayName('VoiceUserSummaryItem', false)
 
 module.exports = class DatePicker extends React.Component {
    render() {
+      const { manager: Birthdays } = this.props
       const res = <CalendarPicker {...this.props} />
 
       const old = res.type

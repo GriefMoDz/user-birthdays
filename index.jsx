@@ -1,5 +1,5 @@
 const { React, getModule, getModuleByDisplayName } = require('powercord/webpack')
-const { open: openModal, close: closeModal } = require('powercord/modal')
+const { close: closeModal } = require('powercord/modal')
 const { findInReactTree, getOwnerInstance } = require('powercord/util')
 const { inject, uninject } = require('powercord/injector')
 const { Plugin } = require('powercord/entities')
@@ -14,8 +14,6 @@ const i18n = require('./i18n')
 
 const BirthdayIcon = require('./components/icons/Birthday')
 const Settings = require('./components/settings/Settings')
-const DatePicker = require('./components/misc/DatePicker')
-const DateUsers = require('./components/modals/DateUsers')
 const ToolbarIcon = require('./components/icons/Toolbar')
 const Cake = require('./components/icons/svg/Cake')
 
@@ -50,18 +48,7 @@ module.exports = class UserBirthdays extends Plugin {
             const index = children?.indexOf(children.find(i => i?.type?.toString?.()?.includes('Unreads')))
 
             if (index > -1) children.splice(index, 0,
-               <ToolbarIcon onClick={() => openModal(() => <DatePicker
-                  avatars={true}
-                  minDate={moment().startOf('year')}
-                  maxDate={moment().endOf('year')}
-                  selected={new Date()}
-                  dateFormatCalendar='LLLL'
-                  onSelect={(v) => {
-                     if (v?.getTime) {
-                        openModal(() => <DateUsers date={moment(v.getTime())} />)
-                     }
-                  }}
-               />)} />
+               <ToolbarIcon onClick={() => Birthdays.openDatePicker()} />
             )
          }
 
@@ -221,19 +208,17 @@ module.exports = class UserBirthdays extends Plugin {
                   id='Edit-birthday'
                   key='Edit-birthday'
                   label='Edit'
-                  action={() => openModal(() =>
-                     <DatePicker
-                        minDate={moment().startOf('year')}
-                        maxDate={moment().endOf('year')}
-                        selected={new Date(hasBday)}
-                        dateFormatCalendar='LLLL'
-                        onSelect={(v) => {
+                  action={() =>
+                     Birthdays.openDatePicker({
+                        avatars: false,
+                        selected: new Date(hasBday),
+                        onSelect: (v) => {
                            closeModal()
                            Birthdays.setUser(user.id, v.valueOf())
                            toast('edited')
-                        }}
-                     />
-                  )}
+                        }
+                     })
+                  }
                />
                <MenuItem
                   id='remove-birthday'
@@ -248,18 +233,15 @@ module.exports = class UserBirthdays extends Plugin {
                id='add-birthday'
                key='add-birthday'
                label='Add birthday'
-               action={() => openModal(() =>
-                  <DatePicker
-                     minDate={moment().startOf('year')}
-                     maxDate={moment().endOf('year')}
-                     dateFormatCalendar='LLLL'
-                     onSelect={(v) => {
+               action={() =>
+                  Birthdays.openDatePicker({
+                     onSelect: (v) => {
                         closeModal()
                         toast('added')
                         Birthdays.setUser(user.id, v.valueOf())
-                     }}
-                  />
-               )}
+                     }
+                  })
+               }
             />
          )
       }
@@ -271,24 +253,28 @@ module.exports = class UserBirthdays extends Plugin {
    async patchSettingsPage() {
       const ErrorBoundary = require('../pc-settings/components/ErrorBoundary')
 
-      const FormSection = await getModuleByDisplayName('FormSection')
-      const SettingsView = await getModuleByDisplayName('SettingsView')
+      const FormSection = getModuleByDisplayName('FormSection', false)
+      const SettingsView = getModuleByDisplayName('SettingsView', false)
       this.patch('ub-settings-page', SettingsView.prototype, 'getPredicateSections', (_, sections) => {
          const changelog = sections.find(category => category.section === 'changelog')
          if (changelog) {
-            const ubSettingsPage = sections.find(category => category.section === this.entityID)
-            if (ubSettingsPage) {
+            const SettingsPage = sections.find(category => category.section === this.entityID)
+            if (SettingsPage) {
                const SettingsElement = powercord.api.settings.tabs[this.entityID].render
-               const getSectionTitle = () => <React.Fragment>
-                  <Cake className='ub-settings-cake-icon' />
-                  {this.manifest.name}
-               </React.Fragment>
+               const getSectionTitle = () => (
+                  <React.Fragment>
+                     <Cake className='ub-settings-cake-icon' />
+                     {this.manifest.name}
+                  </React.Fragment>
+               )
 
-               ubSettingsPage.element = () => <ErrorBoundary>
-                  <FormSection title={getSectionTitle()} tag='h1'>
-                     <SettingsElement />
-                  </FormSection>
-               </ErrorBoundary>
+               SettingsPage.element = () => (
+                  <ErrorBoundary>
+                     <FormSection title={getSectionTitle()} tag='h1'>
+                        <SettingsElement />
+                     </FormSection>
+                  </ErrorBoundary>
+               )
             }
          }
 
