@@ -1,7 +1,7 @@
-const { React, getModule, getModuleByDisplayName } = require('powercord/webpack')
-const { close: closeModal } = require('powercord/modal')
+const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { findInReactTree, getOwnerInstance } = require('powercord/util')
 const { inject, uninject } = require('powercord/injector')
+const { close: closeModal } = require('powercord/modal')
 const { Plugin } = require('powercord/entities')
 
 const moment = getModule(['createFromInputFallback'], false)
@@ -19,6 +19,8 @@ const Cake = require('./components/icons/svg/Cake')
 
 module.exports = class UserBirthdays extends Plugin {
    startPlugin() {
+      this.settings = powercord.api.settings._fluxProps('user-birthdays')
+
       this.loadStylesheet('style.scss')
       powercord.api.i18n.loadAllStrings(i18n)
 
@@ -36,14 +38,23 @@ module.exports = class UserBirthdays extends Plugin {
       this.patchBirthdayIcons()
       this.patchContextMenus()
       this.patchToolbar()
+
    }
 
    async patchToolbar() {
       const HeaderBarContainer = getModule(m => m.default?.displayName == 'HeaderBarContainer', false)
 
-      this.patch('ub-header-bar', HeaderBarContainer.default.prototype, 'render', (_, res) => {
-         let toolbar = res.props.toolbar
-         if (toolbar) {
+      const _this = this
+      this.patch('ub-header-bar', HeaderBarContainer.default.prototype, 'render', function (_, res) {
+         const { getSetting } = _this.settings
+
+         const toolbar = res.props.toolbar
+         const isFriends = findInReactTree(this.props, r => r?.props?.children == Messages.FRIENDS)
+
+         if (
+            toolbar && getSetting('toolbarIcon', true) &&
+            ((getSetting('friendsToolbarIcon', false) && isFriends) || !getSetting('friendsToolbarIcon', false))
+         ) {
             const children = toolbar.props.children
             const index = children?.indexOf(children.find(i => i?.type?.toString?.()?.includes('Unreads')))
 
@@ -69,7 +80,10 @@ module.exports = class UserBirthdays extends Plugin {
       const MessageHeader = getModule(m => getDefaultMethodByKeyword(m, 'showTimestampOnHover'), false)
       this.patch('ub-message-header1', MessageHeader, 'default', ([{ message: { author: user } }], res) => {
          const defaultProps = { user, location: 'message-headers' }
-         const header = findInReactTree(res, n => Array.isArray(n?.props?.children) && n.props.children.find(c => c?.props?.message))
+         const header = findInReactTree(res, n =>
+            Array.isArray(n?.props?.children) &&
+            n.props.children.find(c => c?.props?.message)
+         )
 
          if (header?.props?.children?.[0]?.props) {
             header.props.children[0].props.user_birthdays = defaultProps
@@ -128,12 +142,13 @@ module.exports = class UserBirthdays extends Plugin {
 
       DiscordTag.default.displayName = 'DiscordTag'
 
+      const userStore = getModule(['getCurrentUser'], false)
       const NameTag = getModule(m => m.default?.displayName === 'NameTag', false)
       this.patch('ub-name-tag2', NameTag, 'default', ([props], res) => {
          const user = props.user || userStore.findByTag(props.name, props.discriminator)
          const defaultProps = { user, location: 'user-popout-modal' }
 
-         if (props.className.includes('discordTag')) defaultProps.location = 'friends-list'
+         if (props.className?.includes('discordTag')) defaultProps.location = 'friends-list'
 
          if (Birthdays.isBirthday(user) || user?.forceBirthday) {
             res.props.children.splice(2, 0, [
@@ -293,13 +308,5 @@ module.exports = class UserBirthdays extends Plugin {
       if (!this.patches) this.patches = []
       this.patches.push(args[0])
       return inject(...args)
-   }
-
-   unpatch(id) {
-      uninject(id)
-      if (!this.patches) return
-      let index = this.patches.indexOf(id)
-      if (!index) return
-      return this.patches.splice(index, 1)
    }
 }

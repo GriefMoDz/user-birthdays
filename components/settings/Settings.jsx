@@ -1,6 +1,6 @@
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { SwitchItem, TextInput, RadioGroup } = require('powercord/components/settings')
-const { Icon } = require('powercord/components')
+const { Icon, Text } = require('powercord/components')
 const { SettingsSections } = require('../../lib/Constants')
 const Previews = require('./previews')
 
@@ -8,6 +8,7 @@ const { tabBar, tabBarItem } = getModule(['tabBar', 'tabBarItem'], false)
 
 const TabBar = getModuleByDisplayName('TabBar', false)
 const SettingsCard = require('./SettingsCard')
+const FileInput = require('../misc/FileInput')
 const PlainSwitch = require('./PlainSwitch')
 
 const getLanguageKey = (key) => {
@@ -51,28 +52,30 @@ module.exports = class Settings extends React.Component {
          >
             Customized message
          </TextInput>
+         {(getSetting('popupPlaySound', false) || getSetting('toastsPlaySound', false)) &&
+            <Text>Custom alert sounds are temporarily disabled due to unexpected behaviour.</Text>
+            // <FileInput
+            //    onFileSelect={(file) => {
+            //       console.log(file)
+            //    }}
+            // >
+            //    {Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_TITLE}
+            // </FileInput>
+         }
       </>
    }
 
-   renderMiscellaneous() {
-      const { getSetting, toggleSetting } = this.settings
-
-      return <>
-         {/* <SwitchItem
-            value={getSetting('hideHeaderBarIcon', false)}
-            onChange={() => toggleSetting('hideHeaderBarIcon', false)}
-            note='Removes the cake icon within the header bar.'
-         >
-            Hide Header Bar Icon
-         </SwitchItem> */}
-      </>
-   }
-
-   renderSectionSettings(section) {
+   renderSectionSettings(section, custom = false) {
       const { getSetting, toggleSetting, updateSetting } = this.settings
 
       const elements = []
-      const { settings } = SettingsSections[section]
+
+      let settings
+      if (!custom) {
+         settings = SettingsSections[section].settings
+      } else {
+         settings = section
+      }
 
       Object.keys(settings).forEach(key => {
          const setting = settings[key]
@@ -91,6 +94,8 @@ module.exports = class Settings extends React.Component {
                   <Type
                      note={getLanguageKey(`UB_SWITCH_${setting.note.replace(/\%/gmi, '')}`)}
                      value={getSetting(key, setting.defaultValue)}
+                     manager={this}
+                     setting={setting}
                      onChange={typeof setting.onChange === 'function' ? setting.onChange : () => toggleSetting(key, setting.defaultValue)}
                      disabled={typeof setting.disabled === 'function' ? setting.disabled() : setting.disabled}
                   >
@@ -99,7 +104,10 @@ module.exports = class Settings extends React.Component {
                )
 
                if (setting.preview) {
-                  const Preview = Previews[Object.keys(Previews).find(p => key.includes(p))] || 'div'
+                  console.log(key)
+                  console.log(Object.keys(Previews).find(p => key.toLowerCase().includes(p.toLowerCase())))
+                  const Preview = Previews[Object.keys(Previews).find(p => key.toLowerCase().includes(p.toLowerCase()))] || 'div'
+                  console.log(Preview)
 
                   return elements.push(
                      <div className='ub-settings-preview-card'>
@@ -128,8 +136,6 @@ module.exports = class Settings extends React.Component {
          return this.renderSettings()
       else if (selectedTabItem === 'CUSTOMIZE')
          return this.renderCustomize()
-      else if (selectedTabItem === 'MISC')
-         return this.renderMiscellaneous()
    }
 
    render() {
@@ -147,9 +153,6 @@ module.exports = class Settings extends React.Component {
                </TabBar.Item>
                <TabBar.Item className={tabBarItem} id='CUSTOMIZE'>
                   {Messages.UB_SETTINGS_CUSTOMIZE_TAB}
-               </TabBar.Item>
-               <TabBar.Item className={tabBarItem} id='MISC'>
-                  {Messages.UB_SETTINGS_MISCELLANEOUS_TAB}
                </TabBar.Item>
             </TabBar>
 
