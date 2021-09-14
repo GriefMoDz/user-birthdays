@@ -1,0 +1,244 @@
+/* Birthday Icon */
+
+#user-birthday {
+  display: inline;
+
+  svg {
+    color: var(--channels-default);
+    margin-left: 4px;
+    vertical-align: -0.025em;
+  }
+}
+
+.peopleListItem-2nzedh div[class*='userInfo'] {
+  #user-birthday {
+    visibility: hidden;
+  }
+
+  &[class*='hovered'] #user-birthday {
+    visibility: visible;
+  }
+}
+
+.repliedMessage-VokQwo #user-birthday svg {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* Settings */
+
+.ub-settings {
+  &-preview-card {
+    background-color: var(--background-secondary);
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+
+  &-image-preview-container {
+    width: 100%;
+    max-height: 200px;
+    display: flex;
+  }
+
+  &-image-preview {
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+    max-width: 375px;
+  }
+
+  &-switch-icon {
+    width: 20px !important;
+    height: 20px !important;
+    margin-top: 0.5px;
+    margin-right: 10px;
+  }
+  
+  &-cake-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+    vertical-align: bottom;
+  }
+
+  &-tab-bar {
+    margin-bottom: 20px;
+  }
+
+  &-tab-bar div[class*='tabBarItem'] {
+    cursor: pointer !important;
+  }
+
+  &-plain-switch {
+    margin-bottom: 0;
+  }
+
+  &-preview-card {
+    a[class*='channel'] {
+      max-width: unset;
+      margin-right: 8px;
+
+      div[class*='children'] {
+        display: none;
+      }
+    }
+
+    div[class*='divider'] {
+      margin-bottom: 15px;
+      margin-top: 15px
+    }
+  }
+
+  &-user-popout-preview {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--background-floating);
+    box-shadow: var(--elevation-high);
+    -webkit-box-shadow: var(--elevation-high);
+  }
+
+  &-friends-list-preview div[class*='peopleListItem'] {
+    border-top: none;
+    margin: 0 !important;
+    padding: 0px;
+
+    div[class*='listItemContents'] {
+      margin-left: 15px !important;
+      margin-right: 15px !important;
+    }
+
+    div[class*='discordTag'] {
+      span {
+        visibility: visible !important;
+      }
+
+      div {
+        visibility: visible !important;
+      }
+    }
+
+    div[class*='actions'] {
+      display: none;
+    }
+  }
+
+  &-message-header-preview div[class*='message'] {
+    background: none !important;
+  }
+
+  &-message-header-preview div[class*='buttonContainer'] {
+    display: none;
+  }
+}
+
+/* Birthday Alert */
+
+.user-birthday-alert-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.user-birthday-alert-avatar {
+  display: flex;
+  justify-content: center;
+  margin-top: 15em;
+  margin-bottom: 5em;
+
+  > div {
+    width: 240px !important;
+    height: 240px !important;
+  }
+}
+
+.user-birthday-alert-hat {
+  position: absolute;
+  transform: translateX(-19%) translateY(-65%);
+  z-index: 99999;
+}
+
+.user-birthday-alert-text {
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 1em;
+  line-height: inherit;
+}
+
+.user-birthday-alert-buttons {
+  display: flex;
+  justify-content: center;
+
+  @media only screen and (max-width: 820px) {
+    flex-direction: column;
+    align-items: center;
+
+    button {
+      margin-right: 0 !important;
+      margin-bottom: 1em;
+      width: 75% !important;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  button {
+    width: 25%;
+    margin-right: 5em;
+    pointer-events: all;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.date-users-search {
+  margin-right: 24px;
+}
+
+.ub-date-picker-avatars {
+  .react-datepicker__day-name {
+    width: 10vh;
+  }
+
+  .react-datepicker__day {
+    display: table-cell;
+    font-size: 1rem;
+    width: 10vh !important;
+    height: 10vh !important;
+  }
+
+  .ub-date-picker-day {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
+
+  @media only screen and (max-height: 575px) {
+    div[class*='wrapper'] {
+      display: none;
+    }
+  }
+
+  div[class*='wrapper'] {
+    margin-top: -10px;
+    width: 2.75vh !important;
+    height: 2.75vh !important;
+  }
+}
+
+/* Date Users modal */
+
+.ub-date-users {
+   &-tip {
+      margin-bottom: -2.5px;
+      margin-right: 5px;
+   }
+}
