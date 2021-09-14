@@ -29,7 +29,6 @@ function getFilePicker() {
    Internals.useCallback = ogUseCallback
 
    const mdl = findInReactTree(res, r => r?.props?.onFileSelect)
-   console.log(mdl)
    return mdl?.type
 }
 

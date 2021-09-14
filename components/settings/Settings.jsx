@@ -104,10 +104,7 @@ module.exports = class Settings extends React.Component {
                )
 
                if (setting.preview) {
-                  console.log(key)
-                  console.log(Object.keys(Previews).find(p => key.toLowerCase().includes(p.toLowerCase())))
                   const Preview = Previews[Object.keys(Previews).find(p => key.toLowerCase().includes(p.toLowerCase()))] || 'div'
-                  console.log(Preview)
 
                   return elements.push(
                      <div className='ub-settings-preview-card'>
