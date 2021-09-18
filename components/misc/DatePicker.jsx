@@ -1,12 +1,13 @@
 const { React, getModuleByDisplayName, getModule } = require('powercord/webpack')
 const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
 
+const BirthdayStore = require('../../lib/Store')
+
 const CalendarPicker = getModuleByDisplayName('CalendarPicker', false)
 const VoiceUserSummaryItem = getModuleByDisplayName('VoiceUserSummaryItem', false)
 
 module.exports = class DatePicker extends React.Component {
    render() {
-      const { manager: Birthdays } = this.props
       const res = <CalendarPicker {...this.props} />
 
       const old = res.type
@@ -26,13 +27,12 @@ module.exports = class DatePicker extends React.Component {
                let res = old(...args)
 
                const date = args[1].valueOf()
-               const users = Birthdays.getBirthdays()
-               const birthdays = Object.keys(users).map(user => {
-                  if (Birthdays.isBirthday(user, new Date(date))) return user
-                  return null
-               }).filter(Boolean)
+               const users = BirthdayStore.getBirthdays()
+               const birthdays = Object.keys(users).map(userId =>
+                  BirthdayStore.isBirthday(userId, new Date(date)) ? userId : null
+               ).filter(Boolean)
 
-               const fetched = birthdays.map(u => getUser(u))
+               const fetched = birthdays.map(getUser).filter(Boolean)
                if (!Array.isArray(res)) res = [
                   <div className='ub-date-picker-day'>
                      <span className='ub-date-picker-number'>{res}</span>

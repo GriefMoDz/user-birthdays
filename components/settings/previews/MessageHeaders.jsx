@@ -14,7 +14,7 @@ module.exports = class MessageHeaders extends React.Component {
       user.forceBirthday = true
 
       return (
-         <div>
+         <React.Fragment>
             <div className='ub-settings-message-header-preview'>
                <ChannelMessage
                   id={`chat-messages-user-birthdays-preview`}
@@ -29,7 +29,7 @@ module.exports = class MessageHeaders extends React.Component {
             </div>
             <Divider />
             {this.props.children}
-         </div>
+         </React.Fragment>
       )
    }
 }

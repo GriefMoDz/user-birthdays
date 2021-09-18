@@ -1,6 +1,8 @@
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { SwitchItem, TextInput, RadioGroup } = require('powercord/components/settings')
-const { Icon, Text } = require('powercord/components')
+const { close: closeModal } = require('powercord/modal')
+const { Icon } = require('powercord/components')
+
 const { SettingsSections } = require('../../lib/Constants')
 const Previews = require('./previews')
 
@@ -19,6 +21,7 @@ module.exports = class Settings extends React.Component {
    constructor(props) {
       super(props)
 
+      this.customAlertStore = powercord.api.settings._fluxProps('user-birthdays-custom-alert')
       this.settings = powercord.api.settings._fluxProps('user-birthdays')
 
       this.state = {
@@ -52,16 +55,24 @@ module.exports = class Settings extends React.Component {
          >
             Customized message
          </TextInput>
-         {(getSetting('popupPlaySound', false) || getSetting('toastsPlaySound', false)) &&
-            <Text>Custom alert sounds are temporarily disabled due to unexpected behaviour.</Text>
-            // <FileInput
-            //    onFileSelect={(file) => {
-            //       console.log(file)
-            //    }}
-            // >
-            //    {Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_TITLE}
-            // </FileInput>
-         }
+         {(getSetting('popupPlaySound', false) || getSetting('toastsPlaySound', false)) && (
+            <FileInput
+               type='audio'
+               filters={[{ name: 'Audio', extensions: ['mp3', 'wav', 'ogg'] }]}
+               filename={getSetting('alertSound', '')}
+               note={Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_DESC}
+               onFileSelect={async (file) => {
+                  const { classifyFile } = getModule(['classifyFile'], false)
+                  if (classifyFile(file) === 'audio') {
+                     const { readFileAsBase64 } = getModule(['readFileAsBase64'], false)
+                     this.customAlertStore.updateSetting('file', await readFileAsBase64(file))
+                     updateSetting('alertSound', file.name)
+                  }
+               }}
+            >
+               {Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_TITLE}
+            </FileInput>
+         )}
       </>
    }
 
@@ -79,27 +90,38 @@ module.exports = class Settings extends React.Component {
 
       Object.keys(settings).forEach(key => {
          const setting = settings[key]
+         const getTranslationString = (prefix, key) => getLanguageKey(`${prefix}_${key.replace(/\%/gmi, '')}`)
 
          switch (setting.type) {
             case 'radio':
                return elements.push(<RadioGroup
                   options={setting.options}
-                  note={getLanguageKey(`UB_RADIO_${setting.note.replace(/\%/gmi, '')}`)}
+                  note={getTranslationString('UB_RADIO', setting.note)}
                   value={getSetting(key, setting.defaultValue)}
                   onChange={(e) => updateSetting(key, e.value)}
-               >{getLanguageKey(`UB_RADIO_${setting.title.replace(/\%/gmi, '')}`)}</RadioGroup>)
+               >{getTranslationString('UB_RADIO', setting.title)}</RadioGroup>)
             case 'switch':
                const Type = setting.preview ? PlainSwitch : SwitchItem
+               const noteWithCustomizeClick = (
+                  setting.note.includes('SOUND_DESC') &&
+                  getTranslationString('UB_SWITCH', setting.note).format({
+                     onCustomizeClick: () => {
+                        this.setState({ currentSettingsSection: null, selectedTabItem: 'CUSTOMIZE' })
+                        closeModal()
+                     }
+                  })
+               )
+
                const Component = (
                   <Type
-                     note={getLanguageKey(`UB_SWITCH_${setting.note.replace(/\%/gmi, '')}`)}
+                     note={noteWithCustomizeClick || getTranslationString('UB_SWITCH', setting.note)}
                      value={getSetting(key, setting.defaultValue)}
                      manager={this}
                      setting={setting}
                      onChange={typeof setting.onChange === 'function' ? setting.onChange : () => toggleSetting(key, setting.defaultValue)}
                      disabled={typeof setting.disabled === 'function' ? setting.disabled() : setting.disabled}
                   >
-                     {getLanguageKey(`UB_SWITCH_${setting.title.replace(/\%/gmi, '')}`)}
+                     {getTranslationString('UB_SWITCH', setting.title)}
                   </Type>
                )
 

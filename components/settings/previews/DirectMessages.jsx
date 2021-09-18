@@ -11,10 +11,9 @@ const { getStatus } = getModule(['getStatus'], false)
 module.exports = class DirectMessages extends React.Component {
    render() {
       const user = Lodash.cloneDeep(getCurrentUser())
-      user.forceBirthday = true
 
       return (
-         <div>
+         <React.Fragment>
             <PrivateChannel
                user={user}
                isOwner={true}
@@ -23,10 +22,11 @@ module.exports = class DirectMessages extends React.Component {
                channelName={user.username}
                status={getStatus(user.id)}
                activities={getActivities(user.id)}
+               forceBirthday={true}
             />
             <Divider />
             {this.props.children}
-         </div>
+         </React.Fragment>
       )
    }
 }

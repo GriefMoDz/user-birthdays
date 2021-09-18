@@ -8,7 +8,7 @@ module.exports = React.memo((props) => {
    const locationKey = Lodash.upperFirst(Lodash.camelCase(props.location))
    const { getSetting } = props
 
-   if (!getSetting(`icon${locationKey}`, true)) {
+   if (!getSetting(`icon${locationKey}`, true) || (!props.forceBirthday && !props.isBirthday)) {
       return null
    }
 

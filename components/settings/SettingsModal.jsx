@@ -1,24 +1,31 @@
-const { React, Flux, getModule } = require('powercord/webpack')
-const { Modal } = require('powercord/components/modal')
+const { React, Flux, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { close: closeModal } = require('powercord/modal')
-const { FormTitle } = require('powercord/components')
-const { header } = getModule(['tabBarContainer'], false)
+const { Flex, Text } = require('powercord/components')
 
+const Modal = getModule(['ModalRoot'], false)
+const Header = getModuleByDisplayName('Header', false)
 
 class SettingsModal extends React.Component {
    render() {
       return (
-         <Modal size={Modal.Sizes.LARGE} style={{ borderRadius: '8px' }}>
-            <Modal.Header className={header}>
-               <FormTitle tag='h4'>
-                  Settings for {this.props.children}
-               </FormTitle>
-               <Modal.CloseButton onClick={closeModal} />
-            </Modal.Header>
-            <Modal.Content>
+         <Modal.ModalRoot size={Modal.ModalSize.MEDIUM} style={{ borderRadius: 8 }} transitionState={1}>
+            <Modal.ModalHeader>
+               <Flex.Child>
+                  <Header tag='h2' size={Header.Sizes.SIZE_20}>
+                     {Messages.SETTINGS}
+                  </Header>
+                  <Text size={Text.Sizes.SIZE_16} color={Text.Colors.HEADER_SECONDARY}>
+                     {this.props.children}
+                  </Text>
+               </Flex.Child>
+               <Flex.Child grow={0}>
+                  <Modal.ModalCloseButton onClick={closeModal} />
+               </Flex.Child>
+            </Modal.ModalHeader>
+            <Modal.ModalContent className='ub-modal-content'>
                {this.props.manager.renderSectionSettings(this.props.setting.settings, true)}
-            </Modal.Content>
-         </Modal>
+            </Modal.ModalContent>
+         </Modal.ModalRoot>
       )
    }
 }

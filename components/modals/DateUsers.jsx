@@ -1,7 +1,6 @@
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { open: openModal, close: closeModal, closeAll } = require('powercord/modal')
-const { Modal } = require('powercord/components/modal')
-const { FormTitle, Flex, Icon } = require('powercord/components')
+const { Flex, Text, Icon } = require('powercord/components')
 
 const DatePicker = require('../misc/DatePicker')
 const NoResults = require('../misc/NoResults')
@@ -14,7 +13,14 @@ const ChannelStore = getModule(['openPrivateChannel'], false)
 const moment = getModule(['createFromInputFallback'], false)
 const FormText = getModuleByDisplayName('FormText', false)
 const { getStatus } = getModule(['getStatus'], false)
-const classes = getModule(['tabBarContainer'], false)
+
+const BirthdayStore = require('../../lib/Store')
+const Manager = require('../../lib/Manager')
+
+const Modal = getModule(['ModalRoot'], false)
+const Header = getModuleByDisplayName('Header', false)
+
+const { getDefaultAvatarURL } = getModule(['getDefaultAvatarURL'], false)
 
 module.exports = class DateUsers extends React.Component {
    constructor(props) {
@@ -26,47 +32,56 @@ module.exports = class DateUsers extends React.Component {
    }
 
    render() {
-      const { date, manager: Birthdays } = this.props
-      const users = Birthdays.getBirthdays()
+      const { date } = this.props
+      const users = BirthdayStore.getBirthdays()
 
-      const birthdays = Object.keys(users).map(user => {
-         if (Birthdays.isBirthday(user, new Date(date))) return user
-         return null
+      const birthdays = Object.keys(users).map(userId =>
+         BirthdayStore.isBirthday(userId, new Date(date)) ? userId : null
+      ).filter(Boolean)
+
+      const fetched = birthdays.map(getUser).filter(f => {
+         if (this.state.search != '') {
+            if (!f.username.toLowerCase().includes(this.state.search.toLowerCase())) return false
+         }
+
+         return true
       }).filter(Boolean)
 
-      const fetched = birthdays.map(u => getUser(u))
-
       return (
-         <Modal className='ub-date-users' size={Modal.Sizes.LARGE} style={{ borderRadius: '8px' }}>
-            <Modal.Header className={classes.header}>
-               <FormTitle tag='h4' className='date-users-header'>
-                  Birthdays for {this.props.date.format('D MMMM')}
-               </FormTitle>
-               <SearchBar
-                  className={'date-users-search'}
-                  size={SearchBar.Sizes.MEDIUM}
-                  autofocus={false}
-                  placeholder='Search'
-                  onQueryChange={query => this.setState({ search: query })}
-                  onClear={() => this.setState({ search: '' })}
-                  query={this.state.search} />
-               <Modal.CloseButton onClick={closeModal} />
-            </Modal.Header>
-            <Modal.Content>
-               {fetched.length ? fetched.filter(f => {
-                  if (this.state.search != '') {
-                     if (!f.username.toLowerCase().includes(this.state.search.toLowerCase())) return false
-                  }
-
-                  return true
-               }).map(u =>
+         <Modal.ModalRoot className='ub-date-users' size={Modal.ModalSize.MEDIUM} style={{ borderRadius: 8 }} transitionState={1}>
+            <Modal.ModalHeader>
+               <Flex.Child>
+                  <Header tag='h2' size={Header.Sizes.SIZE_20}>
+                     {Messages.UB_BIRTHDAYS_HEADER_TOOLTIP}
+                  </Header>
+                  <Text size={Text.Sizes.SIZE_16} color={Text.Colors.HEADER_SECONDARY}>
+                     {this.props.date.format('D MMMM')}
+                  </Text>
+               </Flex.Child>
+               <Flex.Child>
+                  <SearchBar
+                     className='date-users-search'
+                     size={SearchBar.Sizes.MEDIUM}
+                     autofocus={false}
+                     placeholder={Messages.SEARCH}
+                     onQueryChange={query => this.setState({ search: query })}
+                     onClear={() => this.setState({ search: '' })}
+                     query={this.state.search}
+                  />
+               </Flex.Child>
+               <Flex.Child grow={0}>
+                  <Modal.ModalCloseButton onClick={closeModal} />
+               </Flex.Child>
+            </Modal.ModalHeader>
+            <Modal.ModalContent className='ub-modal-content'>
+               {fetched.length ? fetched.map(u =>
                   <Card
-                     name={u.tag}
+                     name={u?.tag || Messages.UNKNOWN_USER}
                      user={u}
                      icon={(props) => <AnimatedAvatar
-                        src={u.getAvatarURL()}
+                        src={u?.getAvatarURL() || getDefaultAvatarURL()}
                         size='SIZE_32'
-                        status={getStatus(u.id)}
+                        status={getStatus(u?.id)}
                         {...props}
                      />}
                      style={{ cursor: 'pointer' }}
@@ -82,7 +97,7 @@ module.exports = class DateUsers extends React.Component {
                                  dateFormatCalendar='LLLL'
                                  onSelect={(v) => {
                                     closeModal()
-                                    Birthdays.setUser(u.id, v.valueOf())
+                                    Manager.setBirthday(u?.id, v.valueOf())
                                  }}
                               />)
                            }
@@ -92,27 +107,27 @@ module.exports = class DateUsers extends React.Component {
                            name: Messages.UB_DATE_USERS_REMOVE_BIRTHDAY,
                            color: 'colorDanger',
                            onClick: () => {
-                              Birthdays.removeUser(u.id)
+                              Manager.removeBirthday(u?.id)
                               this.forceUpdate()
                            }
                         }
                      ]}
                      onClick={() => {
-                        ChannelStore.openPrivateChannel(u.id)
+                        ChannelStore.openPrivateChannel(u?.id)
                         closeAll()
                      }}
                   />
-               ) : <NoResults />}
-            </Modal.Content>
-            <Modal.Footer>
+               ) : <NoResults message={this.state.search != '' ? Messages.SEARCH_NO_RESULTS : Messages.UB_DATE_USERS_MODAL_NOT_FOUND} />}
+            </Modal.ModalContent>
+            <Modal.ModalFooter>
                <Flex>
                   <FormText>
                      <Icon className='ub-date-users-tip' name='Info' />
                      {Messages.UB_DATE_USERS_TIP}
                   </FormText>
                </Flex>
-            </Modal.Footer>
-         </Modal>
+            </Modal.ModalFooter>
+         </Modal.ModalRoot>
       )
    }
 }

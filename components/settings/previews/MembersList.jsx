@@ -10,20 +10,20 @@ const { getStatus } = getModule(['getStatus'], false)
 module.exports = class MembersList extends React.Component {
    render() {
       const user = Lodash.cloneDeep(getCurrentUser())
-      user.forceBirthday = true
 
       return (
-         <div>
+         <React.Fragment>
             <MemberListItem
                user={user}
                isOwner={true}
                isTyping={true}
                status={getStatus(user.id)}
                activities={getActivities(user.id)}
+               forceBirthday={true}
             />
             <Divider />
             {this.props.children}
-         </div>
+         </React.Fragment>
       )
    }
 }

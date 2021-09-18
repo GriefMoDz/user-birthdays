@@ -5,7 +5,7 @@ const { close: closeModal } = require('powercord/modal')
 const { ConfettiCannon, ConfettiCanvas } = getModule(['ConfettiCannon'], false)
 const { default: Button } = getModule(m => m.ButtonLink, false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
-const moment = getModule(['createFromInputFallback'], false)
+
 const AppLayer = getModuleByDisplayName('AppLayer', false)
 const CannonClasses = getModule(['cannonWrapper'], false)
 const Header = getModuleByDisplayName('Header', false)
@@ -27,6 +27,10 @@ module.exports = class BirthdayAlert extends React.Component {
       }
 
       this.ref = React.createRef()
+   }
+
+   componentWillUnmount() {
+      if (this.props.remainingAlerts === 0) this.manager.alertSound?.pause?.()
    }
 
    render() {
@@ -62,9 +66,11 @@ module.exports = class BirthdayAlert extends React.Component {
             '#51BC9D',
             '#AEC7FF',
             '#3E70DD',
-            '#ff8c8a'
+            '#FF8C8A'
          ],
          fireCount: Infinity,
+         interval: 100,
+         firing: true,
          count: 20,
          size: 10
       }
@@ -74,24 +80,20 @@ module.exports = class BirthdayAlert extends React.Component {
             {this.ref ? <ConfettiCanvas className={CannonClasses.cannon}>
                {(props) => <React.Fragment>
                   <ConfettiCannon
-                     firing={true}
                      position={{
                         x: 0,
                         y: 50
                      }}
                      angle={160}
-                     interval={100}
                      {...defaultProps}
                      {...props}
                   />
                   <ConfettiCannon
-                     firing={true}
                      position={{
                         x: 100,
                         y: 50
                      }}
                      angle={-160}
-                     interval={100}
                      {...defaultProps}
                      {...props}
                   />
@@ -140,7 +142,7 @@ module.exports = class BirthdayAlert extends React.Component {
                         validNonShortcutEmojis: []
                      }).catch(() => null)
 
-                     this.manager.addDismiss(user.id, moment().year())
+                     this.manager.dismissBirthday(user.id)
 
                      if (error?.ok) return this.setState({ sent: true })
                   }
@@ -157,7 +159,7 @@ module.exports = class BirthdayAlert extends React.Component {
             <Button
                color={Button.Colors.GREY}
                onClick={() => {
-                  this.manager.addDismiss(user.id, moment().year())
+                  this.manager.dismissBirthday(user.id)
                   closeModal()
                }}
                {...defaultProps}

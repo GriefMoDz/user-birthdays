@@ -6,9 +6,8 @@ module.exports = React.memo((props) => {
       xmlns='http://www.w3.org/2000/svg'
       aria-hidden='true'
       role='img'
-      width='1em'
-      height='1em'
-      preserveAspectRatio='xMidYMid meet'
+      width='24'
+      height='24'
       viewBox='0 0 24 24'
       className={icon}
       {...props}

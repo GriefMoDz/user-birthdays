@@ -12,7 +12,7 @@ module.exports = class UserPopoutModal extends React.Component {
       user.forceBirthday = true
 
       return (
-         <div>
+         <React.Fragment>
             <div className='ub-settings-user-popout-preview'>
                <UserBanner user={user} bannerType={UserBannerTypes.SETTINGS} allowEdit={false} />
                <UserPopoutAvatar user={user} disableUserProfileLink={true} />
@@ -20,7 +20,7 @@ module.exports = class UserPopoutModal extends React.Component {
             </div>
             <Divider />
             {this.props.children}
-         </div>
+         </React.Fragment>
       )
    }
 }

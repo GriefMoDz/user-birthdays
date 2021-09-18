@@ -1,51 +1,52 @@
-const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
+const { React, Flux, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
 const { findInReactTree, getOwnerInstance } = require('powercord/util')
+const { HeaderBar, Menu } = require('powercord/components')
 const { inject, uninject } = require('powercord/injector')
 const { close: closeModal } = require('powercord/modal')
 const { Plugin } = require('powercord/entities')
 
 const moment = getModule(['createFromInputFallback'], false)
-const { MenuItem } = getModule(['MenuItem'], false)
 
-const { getDefaultMethodByKeyword } = require('./lib/Util')
+const { getDefaultMethodByKeyword, openDatePicker, openDateUsersModal } = require('./lib/Util')
 const { ComponentsToFix } = require('./lib/Constants')
-const Birthdays = require('./lib/Manager')
+
+const BirthdayStore = require('./lib/Store')
+const Manager = require('./lib/Manager')
 const i18n = require('./i18n')
 
 const BirthdayIcon = require('./components/icons/Birthday')
 const Settings = require('./components/settings/Settings')
-const ToolbarIcon = require('./components/icons/Toolbar')
 const Cake = require('./components/icons/svg/Cake')
 
 module.exports = class UserBirthdays extends Plugin {
    startPlugin() {
       this.settings = powercord.api.settings._fluxProps('user-birthdays')
-
       this.loadStylesheet('style.scss')
-      powercord.api.i18n.loadAllStrings(i18n)
 
+      powercord.api.i18n.loadAllStrings(i18n)
       powercord.api.settings.registerSettings(this.entityID, {
          category: this.entityID,
          label: 'User Birthdays',
          render: Settings
       })
 
-      this.interval = setInterval(() => Birthdays.check(), 1.8e+6)
-      this.manager = Birthdays
-      Birthdays.check()
+      this.interval = setInterval(() => Manager.checkBirthdays(), 1.8e+6)
+      this.store = BirthdayStore
+      this.manager = Manager
+
+      Manager.checkBirthdays()
 
       this.patchSettingsPage()
       this.patchBirthdayIcons()
       this.patchContextMenus()
       this.patchToolbar()
-
    }
 
    async patchToolbar() {
-      const HeaderBarContainer = getModule(m => m.default?.displayName == 'HeaderBarContainer', false)
+      const HeaderBarContainer = getModuleByDisplayName('HeaderBarContainer', false)
 
       const _this = this
-      this.patch('ub-header-bar', HeaderBarContainer.default.prototype, 'render', function (_, res) {
+      this.patch('ub-header-bar', HeaderBarContainer.prototype, 'render', function (_, res) {
          const { getSetting } = _this.settings
 
          const toolbar = res.props.toolbar
@@ -56,17 +57,22 @@ module.exports = class UserBirthdays extends Plugin {
             ((getSetting('friendsToolbarIcon', false) && isFriends) || !getSetting('friendsToolbarIcon', false))
          ) {
             const children = toolbar.props.children
-            const index = children?.indexOf(children.find(i => i?.type?.toString?.()?.includes('Unreads')))
+            const index = children?.findIndex(i => i?.type?.displayName === 'RecentsButton')
 
             if (index > -1) children.splice(index, 0,
-               <ToolbarIcon onClick={() => Birthdays.openDatePicker()} />
+               <HeaderBar.Icon tooltip={Messages.UB_BIRTHDAYS_HEADER_TOOLTIP} icon={Cake} onClick={() => openDatePicker({
+                  avatars: true,
+                  minDate: moment().startOf('year'),
+                  maxDate: moment().endOf('year'),
+                  selected: new Date(),
+                  dateFormatCalendar: 'LLLL',
+                  onSelect: (date) => openDateUsersModal(date)
+               })} />
             )
          }
 
          return res
       })
-
-      HeaderBarContainer.default.displayName = 'HeaderBarContainer'
 
       const classes = getModule(['title', 'chatContent'], false)
       const toolbar = document.querySelector(`.${classes.title}`)
@@ -92,13 +98,16 @@ module.exports = class UserBirthdays extends Plugin {
          return res
       })
 
-      const ConnectedBirthdayIcon = powercord.api.settings.connectStores('user-birthdays')(BirthdayIcon)
+      const ConnectedBirthdayIcon = Flux.connectStores([ powercord.api.settings.store, BirthdayStore ], (props) => ({
+         ...powercord.api.settings._fluxProps('user-birthdays'),
+         isBirthday: BirthdayStore.isBirthday(props.user?.id),
+      }))(BirthdayIcon)
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
       this.patch('ub-message-header2', UsernameHeader, 'default', ([{ user_birthdays: defaultProps }], res) => {
-         if (defaultProps && (Birthdays.isBirthday(defaultProps.user) || defaultProps.user?.forceBirthday)) {
+         if (defaultProps) {
             res.props.children.splice(2, 0, [
-               <ConnectedBirthdayIcon {...defaultProps} />
+               <ConnectedBirthdayIcon {...defaultProps} forceBirthday={defaultProps.user?.forceBirthday} />
             ])
          }
 
@@ -124,11 +133,9 @@ module.exports = class UserBirthdays extends Plugin {
       this.patch('ub-member-list', MemberListItem.prototype, 'renderDecorators', function (_, res) {
          const defaultProps = { user: this.props.user, location: 'members-list' }
 
-         if (Birthdays.isBirthday(this.props.user) || this.props.user?.forceBirthday) {
-            res.props.children.unshift([
-               <ConnectedBirthdayIcon {...defaultProps} />
-            ])
-         }
+         res.props.children.unshift([
+            <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />
+         ])
 
          return res
       })
@@ -150,11 +157,9 @@ module.exports = class UserBirthdays extends Plugin {
 
          if (props.className?.includes('discordTag')) defaultProps.location = 'friends-list'
 
-         if (Birthdays.isBirthday(user) || user?.forceBirthday) {
-            res.props.children.splice(2, 0, [
-               <ConnectedBirthdayIcon {...defaultProps} />
-            ])
-         }
+         res.props.children.splice(2, 0, [
+            <ConnectedBirthdayIcon {...defaultProps} forceBirthday={user?.forceBirthday} />
+         ])
 
          return res
       })
@@ -163,20 +168,14 @@ module.exports = class UserBirthdays extends Plugin {
 
       const PrivateChannel = getModuleByDisplayName('PrivateChannel', false)
       this.patch('ub-dm-channel', PrivateChannel.prototype, 'render', function (_, res) {
-         if (!this.props.user) {
-            return res
-         }
+         if (!this.props.user) return res
 
-         if (Birthdays.isBirthday(this.props.user) || this.props.user?.forceBirthday) {
-            const defaultProps = { user: this.props.user, location: 'direct-messages' }
+         const defaultProps = { user: this.props.user, location: 'direct-messages' }
+         const old = res.props.decorators
 
-            const old = res.props.decorators
-            res.props.decorators = [
-               <ConnectedBirthdayIcon {...defaultProps} />
-            ]
-
-            if (old) res.props.decorators.push(...old)
-         }
+         res.props.decorators = [
+            <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />
+         ].concat(old)
 
          return res
       })
@@ -187,6 +186,10 @@ module.exports = class UserBirthdays extends Plugin {
       this.patch('ud-context-menu-dm', DMContextMenu, 'default', this.processContextMenu.bind(this))
       DMContextMenu.default.displayName = 'DMUserContextMenu'
 
+      const UserGenericContextMenu = getModule(m => m.default?.displayName == 'UserGenericContextMenu', false)
+      this.patch('ud-context-menu-generic', UserGenericContextMenu, 'default', this.processContextMenu.bind(this))
+      UserGenericContextMenu.default.displayName = 'UserGenericContextMenu'
+
       const GuildUserContextMenu = getModule(m => m.default?.displayName == 'GuildChannelUserContextMenu', false)
       this.patch('ud-context-menu-guild', GuildUserContextMenu, 'default', this.processContextMenu.bind(this))
       GuildUserContextMenu.default.displayName = 'GuildChannelUserContextMenu'
@@ -194,66 +197,66 @@ module.exports = class UserBirthdays extends Plugin {
 
    processContextMenu([args], res) {
       const user = args.user
-      const note = findInReactTree(res, r => Array.isArray(r) && r.find(g => g?.props?.id == 'note'))
+      const noteGroup = findInReactTree(res, r => Array.isArray(r) && r.find(g => g?.props?.id == 'note'))
 
-      if (user && note) {
-         const index = note.indexOf(note.find(r => r?.props?.id == 'note'))
-         const hasBday = Birthdays.getUser(user.id)
+      if (user && noteGroup) {
+         const index = noteGroup.findIndex(r => r?.props?.id == 'note')
+         const birthday = BirthdayStore.getBirthday(user.id)
 
-         const toast = (type) => {
+         const showToast = (type) => {
             const toasts = Object.keys(powercord.api.notices.toasts)
 
             if (!toasts.find(t => t == `ud-${type}-birthday`)) {
                powercord.api.notices.sendToast(`ud-${type}-birthday`, {
                   type: 'success',
                   timeout: 5000,
-                  header: 'Success',
-                  content: `Birthday ${type}.`
+                  header: 'Success!',
+                  content: `${Messages.UB_BIRTHDAY_TEXT} ${type}.`
                })
             }
          }
 
-         note.splice(index + 1, 0, hasBday ?
-            <MenuItem
+         noteGroup.splice(index + 1, 0, birthday ?
+            <Menu.MenuItem
                id='has-birthday'
                key='has-birthday'
-               label={`Birthday (${moment(hasBday).format('D MMM')})`}
+               label={`${Messages.UB_BIRTHDAY_TEXT} (${moment(birthday).format('D MMM')})`}
             >
-               <MenuItem
+               <Menu.MenuItem
                   id='Edit-birthday'
                   key='Edit-birthday'
-                  label='Edit'
+                  label={Messages.EDIT}
                   action={() =>
-                     Birthdays.openDatePicker({
+                     openDatePicker({
                         avatars: false,
-                        selected: new Date(hasBday),
+                        selected: new Date(birthday),
                         onSelect: (v) => {
                            closeModal()
-                           Birthdays.setUser(user.id, v.valueOf())
-                           toast('edited')
+                           Manager.setBirthday(user.id, v.valueOf())
+                           showToast(Messages.MESSAGE_EDITED)
                         }
                      })
                   }
                />
-               <MenuItem
+               <Menu.MenuItem
                   id='remove-birthday'
                   key='remove-birthday'
-                  label='Remove'
+                  label={Messages.REMOVE}
                   color='colorDanger'
-                  action={() => Birthdays.removeUser(user.id)}
+                  action={() => Manager.removeBirthday(user.id)}
                />
-            </MenuItem>
+            </Menu.MenuItem>
             :
-            <MenuItem
+            <Menu.MenuItem
                id='add-birthday'
                key='add-birthday'
-               label='Add birthday'
+               label={Messages.UB_ADD_BIRTHDAY}
                action={() =>
-                  Birthdays.openDatePicker({
+                  openDatePicker({
                      onSelect: (v) => {
                         closeModal()
-                        toast('added')
-                        Birthdays.setUser(user.id, v.valueOf())
+                        showToast(Messages.UB_MESSAGE_ADDED)
+                        Manager.setBirthday(user.id, v.valueOf())
                      }
                   })
                }
@@ -269,7 +272,7 @@ module.exports = class UserBirthdays extends Plugin {
       const ErrorBoundary = require('../pc-settings/components/ErrorBoundary')
 
       const FormSection = getModuleByDisplayName('FormSection', false)
-      const SettingsView = getModuleByDisplayName('SettingsView', false)
+      const SettingsView = await getModuleByDisplayName('SettingsView')
       this.patch('ub-settings-page', SettingsView.prototype, 'getPredicateSections', (_, sections) => {
          const changelog = sections.find(category => category.section === 'changelog')
          if (changelog) {
