@@ -1,5 +1,5 @@
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
-const { Button } = require('powercord/components')
+const { Button, Icon } = require('powercord/components')
 
 const classes = getModule(['fileUpload', 'fileUploadInput'], false)
 const FileInput = getModuleByDisplayName('FileInput', false)
@@ -23,7 +23,18 @@ module.exports = class CustomFileInput extends React.Component {
           placeholder={Messages.GUILD_STICKER_UPLOAD_FILE_PLACEHOLDER}
           type='text'
           value={this.props.filename}
+          disabled={true}
         />
+        {this.props.filename?.length > 0 &&
+          <Button
+            size={Button.Sizes.MIN}
+            color={Button.Colors.RED}
+            className={classes.fileUploadButton}
+            onClick={this.props.onRemove ?? (() => { })}
+          >
+            <Icon width={18} height={18} name='Close' />
+          </Button>
+        }
         <Button size={Button.Sizes.MIN} className={classes.fileUploadButton}>
           {Messages.GUILD_STICKER_UPLOAD_FILE_BUTTON}
           <FileInput

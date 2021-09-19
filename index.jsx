@@ -98,7 +98,7 @@ module.exports = class UserBirthdays extends Plugin {
          return res
       })
 
-      const ConnectedBirthdayIcon = Flux.connectStores([ powercord.api.settings.store, BirthdayStore ], (props) => ({
+      const ConnectedBirthdayIcon = Flux.connectStores([powercord.api.settings.store, BirthdayStore], (props) => ({
          ...powercord.api.settings._fluxProps('user-birthdays'),
          isBirthday: BirthdayStore.isBirthday(props.user?.id),
       }))(BirthdayIcon)
@@ -171,11 +171,12 @@ module.exports = class UserBirthdays extends Plugin {
          if (!this.props.user) return res
 
          const defaultProps = { user: this.props.user, location: 'direct-messages' }
-         const old = res.props.decorators
+         const decorators = Array.isArray(res.props.decorators) ? res.props.decorators : [ res.props.decorators ]
 
          res.props.decorators = [
-            <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />
-         ].concat(old)
+            <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />,
+            ...decorators
+         ]
 
          return res
       })

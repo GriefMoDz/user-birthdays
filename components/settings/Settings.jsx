@@ -62,6 +62,7 @@ module.exports = class Settings extends React.Component {
                filename={getSetting('alertSound', '')}
                note={Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_DESC}
                onFileSelect={async (file) => {
+                  if (!file) return updateSetting('alertSound')
                   const { classifyFile } = getModule(['classifyFile'], false)
                   if (classifyFile(file) === 'audio') {
                      const { readFileAsBase64 } = getModule(['readFileAsBase64'], false)

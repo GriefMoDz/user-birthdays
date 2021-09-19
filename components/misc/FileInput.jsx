@@ -5,7 +5,7 @@ const CustomFileInput = require('./CustomFileInput')
 
 module.exports = React.memo((props) => {
    const { children: title, note, required } = props
-   const [ filename, setFilename ] = React.useState(props.filename ?? null)
+   const [filename, setFilename] = React.useState(props.filename ?? null)
 
    const FileInput = <CustomFileInput
       filename={filename}
@@ -16,13 +16,17 @@ module.exports = React.memo((props) => {
          setFilename(file.name)
          props.onFileSelect && props.onFileSelect(file)
       }}
+      onRemove={() => {
+         setFilename('')
+         props.onFileSelect(null)
+      }}
    />
 
    return (
       <FormItem title={title} note={note} required={required}>
          {note ? (
             <div className='ub-settings-file-input'>
-              {FileInput}
+               {FileInput}
             </div>
          ) : FileInput}
       </FormItem>
