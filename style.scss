@@ -137,12 +137,27 @@
     }
   }
 
-  &-message-header-preview div[class*='message'] {
-    background: none !important;
+  &-message-header-preview, &-customize-message-preview {
+    list-style-type: none;
+
+    div[class*='message'] {
+      background: none !important;
+    }
+
+    div[class*='buttonContainer'] {
+      display: none;
+    }
   }
 
-  &-message-header-preview div[class*='buttonContainer'] {
-    display: none;
+  &-customize-message-preview {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--background-secondary-alt);
+
+    + div[class*='dividerDefault'] {
+      margin-bottom: 20px;
+    }
   }
 }
 
@@ -229,9 +244,51 @@
   }
 }
 
+/* Date Picker */
+
+.ub-date-picker {
+  .react-datepicker__day:focus-visible {
+    border-top: 1px solid var(--background-modifier-accent) !important;
+    border-left: 1px solid var(--background-modifier-accent) !important;
+    border: none;
+  }
+
+  .react-datepicker__header__dropdown--select {
+    margin-bottom: 25px;
+
+    select {
+      color: var(--text-normal);
+      padding: 0 5px;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-color: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      min-height: 25px;
+      transition: border 0.15s ease 0s;
+      font-size: 15px;
+      width: 100%;
+
+      &:hover {
+        border-color: rgba(0, 0, 0, 0.6);
+      }
+
+      option {
+        color: var(--text-normal);
+        background-color: var(--background-secondary-alt);
+        font-size: 14px;
+      }
+    }
+  }
+}
+
 .ub-date-picker-avatars {
   .react-datepicker__day-name {
     width: 10vh;
+  }
+
+  .react-datepicker__day--today,
+  .react-datepicker__month-text--today,
+  .react-datepicker__quarter-text--today, .react-datepicker__year-text--today {
+    font-weight: inherit !important;
   }
 
   .react-datepicker__day {
@@ -239,6 +296,16 @@
     font-size: 1rem;
     width: 10vh !important;
     height: 10vh !important;
+
+
+    &--keyboard-selected,
+    &--selected {
+      background: none !important;
+
+      &:hover {
+        background-color: var(--brand-experiment) !important;
+      }
+    }
   }
 
   .ub-date-picker-day {

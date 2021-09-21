@@ -16,7 +16,9 @@ module.exports = React.memo((props) => {
          setFilename(file.name)
          props.onFileSelect && props.onFileSelect(file)
       }}
-      onRemove={() => {
+      onFileRemove={() => {
+         if (typeof props.onFileRemove === 'function') props.onFileRemove()
+
          setFilename('')
          props.onFileSelect(null)
       }}

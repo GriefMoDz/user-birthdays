@@ -30,7 +30,10 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    componentWillUnmount() {
-      if (this.props.remainingAlerts === 0) this.manager.alertSound?.pause?.()
+      const countsMatch = (this.props.currentAlertIndex + 1) === this.manager.state.remainingAlerts
+
+      if (this.manager.state.remainingAlerts === 1 || countsMatch) this.manager.state.remainingAlerts += -1
+      if (this.manager.state.remainingAlerts === 0 && this.props.currentAlertIndex === 0) this.manager.alertSound?.pause?.()
    }
 
    render() {
@@ -171,10 +174,9 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderText() {
-      const { username } = this.props.user
       return (
          <Header className='user-birthday-alert-text'>
-            {Messages.UB_BIRTHDAY_ALERT_TEXT.format({ username })}
+            {this.props.message}
          </Header>
       )
    }

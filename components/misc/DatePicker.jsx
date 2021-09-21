@@ -1,56 +1,72 @@
-const { React, getModuleByDisplayName, getModule } = require('powercord/webpack')
-const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
+const { React, getModule, getModuleByDisplayName, i18n: { _chosenLocale } } = require('powercord/webpack')
 
 const BirthdayStore = require('../../lib/Store')
 
-const CalendarPicker = getModuleByDisplayName('CalendarPicker', false)
+const { default: DefaultCalendarPicker, default: { defaultProps } } = getModule(['CalendarContainer'], false)
+const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
+const classes = getModule(['calendarPicker'], false)
+
 const VoiceUserSummaryItem = getModuleByDisplayName('VoiceUserSummaryItem', false)
 
-module.exports = class DatePicker extends React.Component {
-   render() {
-      const res = <CalendarPicker {...this.props} />
+const state = {}
 
-      const old = res.type
-      res.type = (...args) => {
-         const res = old(...args)
-         const picker = res.props.children
-         picker.props = {
-            ...picker.props,
-            ...this.props
-         }
+module.exports = React.memo((props) => {
+   const minDate = React.useMemo(() => props.minDate?.toDate?.() ?? void 0, [props.minDate])
+   const maxDate = React.useMemo(() => props.maxDate?.toDate?.() ?? void 0, [props.maxDate])
 
-         if (this.props.avatars) {
-            picker.props.calendarClassName = 'ub-date-picker-avatars'
+   const datePickerRef = React.useRef(null)
+   const customProps = global._.cloneDeep({
+      ...props,
+      calendarClassName: 'ub-date-picker',
+      inline: true,
+      fixedHeight: true,
+      locale: _chosenLocale,
+      minDate,
+      maxDate
+   })
 
-            const old = picker.props.renderDayContents
-            picker.props.renderDayContents = (...args) => {
-               let res = old(...args)
+   const preserveSelection = React.useCallback((newDate, callback) => {
+      props.onSelect === null || props.onSelect(newDate, callback)
+      state.lastSelectedDate = newDate
+   }, [props.onSelect])
 
-               const date = args[1].valueOf()
-               const users = BirthdayStore.getBirthdays()
-               const birthdays = Object.keys(users).map(userId =>
-                  BirthdayStore.isBirthday(userId, new Date(date)) ? userId : null
-               ).filter(Boolean)
+   if (props.preserveSelection) {
+      customProps.onSelect = preserveSelection
+      customProps.openToDate = state.lastSelectedDate
 
-               const fetched = birthdays.map(getUser).filter(Boolean)
-               if (!Array.isArray(res)) res = [
-                  <div className='ub-date-picker-day'>
-                     <span className='ub-date-picker-number'>{res}</span>
-                     <VoiceUserSummaryItem
-                        className='ub-date-picker-birthday-users'
-                        users={fetched}
-                        max={3}
-                     />
-                  </div>
-               ]
+      delete state.lastSelectedDate
+   }
 
-               return res
-            }
-         }
+   if (props.avatars) {
+      customProps.calendarClassName += ' ub-date-picker-avatars'
+
+      const __oldRenderDayContents = defaultProps.renderDayContents
+      customProps.renderDayContents = (...args) => {
+         let res = __oldRenderDayContents(...args)
+
+         const date = args[1].valueOf()
+         const users = BirthdayStore.getBirthdays()
+         const birthdays = Object.keys(users).map(userId =>
+            BirthdayStore.isBirthday(userId, new Date(date)) ? userId : null
+         ).filter(Boolean)
+
+         const fetched = birthdays.map(getUser).filter(Boolean)
+         if (!Array.isArray(res)) res = [
+            <div className='ub-date-picker-day'>
+               <span className='ub-date-picker-number'>{res}</span>
+               <VoiceUserSummaryItem
+                  className='ub-date-picker-birthday-users'
+                  users={fetched}
+                  max={3}
+               />
+            </div>
+         ]
 
          return res
       }
-
-      return res
    }
-}
+
+   return <div className={classes.calendarPicker} ref={datePickerRef}>
+      <DefaultCalendarPicker {...customProps} />
+   </div>
+})

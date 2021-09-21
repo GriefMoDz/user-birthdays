@@ -1,6 +1,8 @@
 {
   "UB_SWITCH_ALERT_TOASTS_SOUND_DESC": "Plays a customisable sound on toast (to change, head over to the [Customise](onCustomizeClick) tab).",
   "UB_SWITCH_ALERT_POPUP_SOUND_DESC": "Plays a customisable sound on popup (to change, head over to the [Customise](onCustomizeClick) tab).",
+  "UB_SETTINGS_PERSONALIZED_MESSAGE": "Personalised Message",
+  "UB_SETTINGS_PERSONALIZED_MESSAGE_PLACEHOLDER": "Treat your friends with the perfect personalised message. If left blank, a simple \"Happy birthday!\" will be used instead.",
   "UB_SETTINGS_CUSTOMIZE_TAB_SOUND_DESC": "Customise the sound that gets played when one of the alerts that you chose appears.",
   "UB_BIRTHDAY_ALERT_SEND_BUTTON": "Send a personalised message",
   "UB_SETTINGS_CUSTOMIZE_TAB": "Customise",

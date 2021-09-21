@@ -47,6 +47,14 @@ module.exports = class DateUsers extends React.Component {
          return true
       }).filter(Boolean)
 
+      const defaultDatePickerProps = {
+         minDate: moment('1970-01-01'),
+         maxDate: moment().endOf('year'),
+         dropdownMode: 'select',
+         showMonthDropdown: true,
+         showYearDropdown: true
+      }
+
       return (
          <Modal.ModalRoot className='ub-date-users' size={Modal.ModalSize.MEDIUM} style={{ borderRadius: 8 }} transitionState={1}>
             <Modal.ModalHeader>
@@ -91,10 +99,8 @@ module.exports = class DateUsers extends React.Component {
                            name: Messages.UB_DATE_USERS_EDIT_BIRTHDAY,
                            onClick: () => {
                               return openModal(() => <DatePicker
-                                 minDate={moment().startOf('year')}
-                                 maxDate={moment().endOf('year')}
-                                 selected={new Date(date)}
-                                 dateFormatCalendar='LLLL'
+                                 {...defaultDatePickerProps}
+                                 selected={new Date(users[u?.id])}
                                  onSelect={(v) => {
                                     closeModal()
                                     Manager.setBirthday(u?.id, v.valueOf())

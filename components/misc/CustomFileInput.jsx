@@ -30,7 +30,7 @@ module.exports = class CustomFileInput extends React.Component {
             size={Button.Sizes.MIN}
             color={Button.Colors.RED}
             className={classes.fileUploadButton}
-            onClick={this.props.onRemove ?? (() => { })}
+            onClick={this.props.onFileRemove ?? (() => { })}
           >
             <Icon width={18} height={18} name='Close' />
           </Button>

@@ -15,14 +15,14 @@ module.exports = class MessageHeaders extends React.Component {
 
       return (
          <React.Fragment>
-            <div className='ub-settings-message-header-preview'>
+            <div className={this.props.className ?? 'ub-settings-message-header-preview'}>
                <ChannelMessage
-                  id={`chat-messages-user-birthdays-preview`}
+                  id='chat-messages-user-birthdays-preview'
                   groupId='user-birthdays-preview'
                   message={new Message({
                      id: 'user-birthdays-preview',
                      author: user,
-                     content: 'This is a message header preview.'
+                     content: this.props.messageContent ?? 'This is a message header preview.'
                   })}
                   channel={new Channel({ id: 'user-birthdays-preview' })}
                />

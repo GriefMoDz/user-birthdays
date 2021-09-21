@@ -1,5 +1,5 @@
-const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
-const { SwitchItem, TextInput, RadioGroup } = require('powercord/components/settings')
+const { React, getModule, getModuleByDisplayName, constants, i18n: { Messages } } = require('powercord/webpack')
+const { RadioGroup, SwitchItem, TextAreaInput } = require('powercord/components/settings')
 const { close: closeModal } = require('powercord/modal')
 const { Icon } = require('powercord/components')
 
@@ -7,8 +7,12 @@ const { SettingsSections } = require('../../lib/Constants')
 const Previews = require('./previews')
 
 const { tabBar, tabBarItem } = getModule(['tabBar', 'tabBarItem'], false)
+const { readFileAsBase64 } = getModule(['readFileAsBase64'], false)
+const { getCurrentUser } = getModule(['getCurrentUser'], false)
+const { classifyFile } = getModule(['classifyFile'], false)
 
 const TabBar = getModuleByDisplayName('TabBar', false)
+
 const SettingsCard = require('./SettingsCard')
 const FileInput = require('../misc/FileInput')
 const PlainSwitch = require('./PlainSwitch')
@@ -21,6 +25,7 @@ module.exports = class Settings extends React.Component {
    constructor(props) {
       super(props)
 
+      this.currentUser = getCurrentUser()
       this.customAlertStore = powercord.api.settings._fluxProps('user-birthdays-custom-alert')
       this.settings = powercord.api.settings._fluxProps('user-birthdays')
 
@@ -48,13 +53,24 @@ module.exports = class Settings extends React.Component {
    renderCustomize() {
       const { getSetting, updateSetting } = this.settings
 
+      const customMessage = getSetting('customMessage', 'Happy birthday!')
+      const MessageHeaderPreview = Previews['MessageHeaders']
+
       return <>
-         <TextInput
-            defaultValue={getSetting('customMessage', 'Happy birthday!')}
-            onChange={p => updateSetting('customMessage', !p ? 'Happy birthday!' : p)}
+         {MessageHeaderPreview && <MessageHeaderPreview
+            className='ub-settings-customize-message-preview'
+            messageContent={customMessage}
+         />}
+         <TextAreaInput
+            autosize={true}
+            value={customMessage === 'Happy birthday!' ? '' : customMessage}
+            onChange={value => updateSetting('customMessage', !value ? 'Happy birthday!' : value)}
+            maxLength={this.currentUser.premiumType === 2 ? constants.MAX_MESSAGE_LENGTH_PREMIUM : constants.MAX_MESSAGE_LENGTH}
+            placeholder={Messages.UB_SETTINGS_PERSONALIZED_MESSAGE_PLACEHOLDER}
+            note={Messages.USER_SETTINGS_ABOUT_ME_DETAILS}
          >
-            Customized message
-         </TextInput>
+            {Messages.UB_SETTINGS_PERSONALIZED_MESSAGE}
+         </TextAreaInput>
          {(getSetting('popupPlaySound', false) || getSetting('toastsPlaySound', false)) && (
             <FileInput
                type='audio'
@@ -63,12 +79,16 @@ module.exports = class Settings extends React.Component {
                note={Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_DESC}
                onFileSelect={async (file) => {
                   if (!file) return updateSetting('alertSound')
-                  const { classifyFile } = getModule(['classifyFile'], false)
                   if (classifyFile(file) === 'audio') {
-                     const { readFileAsBase64 } = getModule(['readFileAsBase64'], false)
                      this.customAlertStore.updateSetting('file', await readFileAsBase64(file))
                      updateSetting('alertSound', file.name)
+                     this.props.main.manager.loadAlertSound()
                   }
+               }}
+               onFileRemove={() => {
+                  delete this.props.main.manager.alertSound
+                  this.customAlertStore.updateSetting('file')
+                  updateSetting('alertSound')
                }}
             >
                {Messages.UB_SETTINGS_CUSTOMIZE_TAB_SOUND_TITLE}

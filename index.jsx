@@ -27,7 +27,7 @@ module.exports = class UserBirthdays extends Plugin {
       powercord.api.settings.registerSettings(this.entityID, {
          category: this.entityID,
          label: 'User Birthdays',
-         render: Settings
+         render: (props) => <Settings {...props} main={this} />
       })
 
       this.interval = setInterval(() => Manager.checkBirthdays(), 1.8e+6)
@@ -62,10 +62,9 @@ module.exports = class UserBirthdays extends Plugin {
             if (index > -1) children.splice(index, 0,
                <HeaderBar.Icon tooltip={Messages.UB_BIRTHDAYS_HEADER_TOOLTIP} icon={Cake} onClick={() => openDatePicker({
                   avatars: true,
+                  preserveSelection: true,
                   minDate: moment().startOf('year'),
                   maxDate: moment().endOf('year'),
-                  selected: new Date(),
-                  dateFormatCalendar: 'LLLL',
                   onSelect: (date) => openDateUsersModal(date)
                })} />
             )
@@ -100,7 +99,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       const ConnectedBirthdayIcon = Flux.connectStores([powercord.api.settings.store, BirthdayStore], (props) => ({
          ...powercord.api.settings._fluxProps('user-birthdays'),
-         isBirthday: BirthdayStore.isBirthday(props.user?.id),
+         isBirthday: BirthdayStore.isBirthday(props.user?.id) ?? false
       }))(BirthdayIcon)
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
@@ -171,7 +170,7 @@ module.exports = class UserBirthdays extends Plugin {
          if (!this.props.user) return res
 
          const defaultProps = { user: this.props.user, location: 'direct-messages' }
-         const decorators = Array.isArray(res.props.decorators) ? res.props.decorators : [ res.props.decorators ]
+         const decorators = Array.isArray(res.props.decorators) ? res.props.decorators : [res.props.decorators]
 
          res.props.decorators = [
             <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />,
@@ -217,6 +216,14 @@ module.exports = class UserBirthdays extends Plugin {
             }
          }
 
+         const defaultDatePickerProps = {
+            minDate: moment('1970-01-01'),
+            maxDate: moment(),
+            dropdownMode: 'select',
+            showMonthDropdown: true,
+            showYearDropdown: true
+         }
+
          noteGroup.splice(index + 1, 0, birthday ?
             <Menu.MenuItem
                id='has-birthday'
@@ -229,7 +236,7 @@ module.exports = class UserBirthdays extends Plugin {
                   label={Messages.EDIT}
                   action={() =>
                      openDatePicker({
-                        avatars: false,
+                        ...defaultDatePickerProps,
                         selected: new Date(birthday),
                         onSelect: (v) => {
                            closeModal()
@@ -254,6 +261,7 @@ module.exports = class UserBirthdays extends Plugin {
                label={Messages.UB_ADD_BIRTHDAY}
                action={() =>
                   openDatePicker({
+                     ...defaultDatePickerProps,
                      onSelect: (v) => {
                         closeModal()
                         showToast(Messages.UB_MESSAGE_ADDED)
@@ -305,6 +313,7 @@ module.exports = class UserBirthdays extends Plugin {
       if (this.interval) clearInterval(this.interval)
       for (const patch of this.patches ?? []) uninject(patch)
       powercord.api.settings.unregisterSettings(this.entityID)
+      if (this.manager.alertSound) this.manager.alertSound.pause()
    }
 
    patch(...args) {
