@@ -19,6 +19,7 @@ module.exports = class BirthdayAlert extends React.Component {
 
       this.manager = props.manager
       this.settings = powercord.api.settings._fluxProps('user-birthdays')
+      this.utils = require('../../lib/Util')
 
       this.state = {
          cannonRef: null,
@@ -121,8 +122,7 @@ module.exports = class BirthdayAlert extends React.Component {
    }
 
    renderButtons() {
-      const { getSetting } = this.settings
-      const { user } = this.props
+      const { user, birthday } = this.props
 
       const defaultProps = {
          size: Button.Sizes.LARGE,
@@ -139,7 +139,10 @@ module.exports = class BirthdayAlert extends React.Component {
                   const dm = await DM.ensurePrivateChannel([user.id])
                   if (dm) {
                      const error = await messages.sendMessage(dm, {
-                        content: getSetting('customMessage', 'Happy birthday!'),
+                        content: this.utils.getPersonalizedMessage({
+                           user,
+                           birthday
+                        }),
                         invalidEmojis: [],
                         tts: false,
                         validNonShortcutEmojis: []

@@ -6,5 +6,7 @@
   "UB_SETTINGS_CUSTOMIZE_TAB_SOUND_DESC": "Customise the sound that gets played when one of the alerts that you chose appears.",
   "UB_BIRTHDAY_ALERT_SEND_BUTTON": "Send a personalised message",
   "UB_SETTINGS_CUSTOMIZE_TAB": "Customise",
+  "UB_DATE_USERS_EDIT_BIRTHDAY": "Edit birthday",
+  "UB_DATE_USERS_REMOVE_BIRTHDAY": "Remove birthday",
   "UB_ADD_BIRTHDAY": "Add birthday"
 }

@@ -218,7 +218,7 @@ module.exports = class UserBirthdays extends Plugin {
 
          const defaultDatePickerProps = {
             minDate: moment('1970-01-01'),
-            maxDate: moment(),
+            maxDate: moment().endOf('year'),
             dropdownMode: 'select',
             showMonthDropdown: true,
             showYearDropdown: true
