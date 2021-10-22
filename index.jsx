@@ -99,7 +99,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       const ConnectedBirthdayIcon = Flux.connectStores([powercord.api.settings.store, BirthdayStore], (props) => ({
          ...powercord.api.settings._fluxProps('user-birthdays'),
-         isBirthday: BirthdayStore.isBirthday(props.user?.id) ?? false
+         isBirthday: props.user?.id ? BirthdayStore.isBirthday(props.user.id) : false
       }))(BirthdayIcon)
 
       const UsernameHeader = getModule(m => getDefaultMethodByKeyword(m, 'withMentionPrefix'), false)
@@ -148,7 +148,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       DiscordTag.default.displayName = 'DiscordTag'
 
-      const userStore = getModule(['getCurrentUser'], false)
+      const userStore = getModule(['getNullableCurrentUser'], false)
       const NameTag = getModule(m => m.default?.displayName === 'NameTag', false)
       this.patch('ub-name-tag2', NameTag, 'default', ([props], res) => {
          const user = props.user || userStore.findByTag(props.name, props.discriminator)

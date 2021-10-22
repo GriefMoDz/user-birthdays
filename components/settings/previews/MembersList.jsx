@@ -3,9 +3,9 @@ const { Divider } = require('powercord/components')
 const Lodash = window._
 
 const MemberListItem = getModuleByDisplayName('MemberListItem', false)
-const { getCurrentUser } = getModule(['getCurrentUser'], false)
+const { getCurrentUser } = getModule(['getNullableCurrentUser'], false)
 const { getActivities } = getModule(['getActivities'], false)
-const { getStatus } = getModule(['getStatus'], false)
+const { getStatus } = getModule(['isMobileOnline'], false)
 
 module.exports = class MembersList extends React.Component {
    render() {

@@ -3,10 +3,10 @@ const { Divider } = require('powercord/components')
 const Lodash = window._
 
 const PrivateChannel = getModuleByDisplayName('PrivateChannel', false)
-const { getCurrentUser } = getModule(['getCurrentUser'], false)
+const { getCurrentUser } = getModule(['getNullableCurrentUser'], false)
 const { getActivities } = getModule(['getActivities'], false)
 const Channel = getModule(m => m.prototype?.isDM, false)
-const { getStatus } = getModule(['getStatus'], false)
+const { getStatus } = getModule(['isMobileOnline'], false)
 
 module.exports = class DirectMessages extends React.Component {
    render() {

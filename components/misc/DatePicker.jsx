@@ -3,7 +3,7 @@ const { React, getModule, getModuleByDisplayName, i18n: { _chosenLocale } } = re
 const BirthdayStore = require('../../lib/Store')
 
 const { default: DefaultCalendarPicker, default: { defaultProps } } = getModule(['CalendarContainer'], false)
-const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
+const { getUser } = getModule(['getNullableCurrentUser'], false)
 const classes = getModule(['calendarPicker'], false)
 
 const VoiceUserSummaryItem = getModuleByDisplayName('VoiceUserSummaryItem', false)

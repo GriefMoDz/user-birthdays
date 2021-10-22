@@ -17,10 +17,10 @@
 ### Features
 
 - Provides a per-user birthday system with functions such as edit, remove & add.
-- Providers options all over the app to manage birthdays.
+- Provides options all over the app to manage birthdays.
 - Customizable notifications (focus, non-focus, upcoming per-status configuration)
 - Easy access to birthdays through a toolbar icon and right click context menus.
-- Internalization included, plugin can be translated into any language through a JSON file.
+- Internationalization (i18n) included, plugin can be translated into any language through a JSON file.
 - Exposed APIs for integration with other plugins (Plugin devs, you will love this one.)
 
 ### Previews

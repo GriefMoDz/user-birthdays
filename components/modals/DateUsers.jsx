@@ -4,10 +4,11 @@ const { Flex, Text, Icon } = require('powercord/components')
 
 const DatePicker = require('../misc/DatePicker')
 const NoResults = require('../misc/NoResults')
+const Cake = require('../icons/svg/Cake')
 const Card = require('../misc/Card')
 
 const SearchBar = getModule(m => m.defaultProps?.useKeyboardNavigation, false)
-const { getUser } = getModule(['getUser', 'getCurrentUser'], false)
+const { getUser } = getModule(['getNullableCurrentUser'], false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const ChannelStore = getModule(['openPrivateChannel'], false)
 const moment = getModule(['createFromInputFallback'], false)
@@ -18,7 +19,7 @@ const BirthdayStore = require('../../lib/Store')
 const Manager = require('../../lib/Manager')
 
 const Modal = getModule(['ModalRoot'], false)
-const Header = getModuleByDisplayName('Header', false)
+const Header = getModule(m => m?.displayName === 'Header' && m?.Sizes, false)
 
 const { getDefaultAvatarURL } = getModule(['getDefaultAvatarURL'], false)
 
@@ -26,6 +27,7 @@ module.exports = class DateUsers extends React.Component {
    constructor(props) {
       super(props)
 
+      this.utils = require('../../lib/Util')
       this.state = {
          search: ''
       }
@@ -82,8 +84,13 @@ module.exports = class DateUsers extends React.Component {
                </Flex.Child>
             </Modal.ModalHeader>
             <Modal.ModalContent className='ub-modal-content'>
-               {fetched.length ? fetched.map(u =>
-                  <Card
+               {fetched.length ? fetched.map(u => {
+                  const birthday = BirthdayStore.getBirthday(u.id)
+                  const age = this.utils.calculateAge(birthday)
+
+                  const hasBirthdayPassed = new Date(birthday).getTime() < new Date(date).getTime()
+
+                  return <Card
                      name={u?.tag || Messages.UNKNOWN_USER}
                      user={u}
                      icon={(props) => <AnimatedAvatar
@@ -93,6 +100,7 @@ module.exports = class DateUsers extends React.Component {
                         {...props}
                      />}
                      style={{ cursor: 'pointer' }}
+                     details={age > 0 ? [{ icon: Cake, text: `They ${hasBirthdayPassed ? 'turned' : 'will be turning'} ${age}.` }] : []}
                      buttons={[
                         {
                            type: 'button',
@@ -123,7 +131,7 @@ module.exports = class DateUsers extends React.Component {
                         closeAll()
                      }}
                   />
-               ) : <NoResults message={this.state.search != '' ? Messages.SEARCH_NO_RESULTS : Messages.UB_DATE_USERS_MODAL_NOT_FOUND} />}
+               }) : <NoResults message={this.state.search != '' ? Messages.SEARCH_NO_RESULTS : Messages.UB_DATE_USERS_MODAL_NOT_FOUND} />}
             </Modal.ModalContent>
             <Modal.ModalFooter>
                <Flex>

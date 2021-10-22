@@ -1,9 +1,9 @@
-const { React, Flux, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
+const { React, Flux, getModule, i18n: { Messages } } = require('powercord/webpack')
 const { close: closeModal } = require('powercord/modal')
 const { Flex, Text } = require('powercord/components')
 
 const Modal = getModule(['ModalRoot'], false)
-const Header = getModuleByDisplayName('Header', false)
+const Header = getModule(m => m?.displayName === 'Header' && m?.Sizes, false)
 
 class SettingsModal extends React.Component {
    render() {
