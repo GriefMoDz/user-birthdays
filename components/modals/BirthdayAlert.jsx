@@ -8,7 +8,7 @@ const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 
 const AppLayer = getModuleByDisplayName('AppLayer', false)
 const CannonClasses = getModule(['cannonWrapper'], false)
-const Header = getModuleByDisplayName('Header', false)
+const Header = getModule(m => m?.displayName === 'Header' && m?.Sizes, false)
 const DM = getModule(['ensurePrivateChannel'], false)
 
 const Hat = require('../icons/svg/PartyHat')
