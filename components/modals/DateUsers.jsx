@@ -13,7 +13,7 @@ const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const ChannelStore = getModule(['openPrivateChannel'], false)
 const moment = getModule(['createFromInputFallback'], false)
 const FormText = getModuleByDisplayName('FormText', false)
-const { getStatus } = getModule(['getStatus'], false)
+const { getStatus } = getModule(['isMobileOnline'], false)
 
 const BirthdayStore = require('../../lib/Store')
 const Manager = require('../../lib/Manager')
