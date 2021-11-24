@@ -8,7 +8,7 @@ const Cake = require('../icons/svg/Cake')
 const Card = require('../misc/Card')
 
 const SearchBar = getModule(m => m.defaultProps?.useKeyboardNavigation, false)
-const { getUser } = getModule(['getNullableCurrentUser'], false)
+const { getUser } = getModule(['getCurrentUser', 'getUser'], false)
 const { AnimatedAvatar } = getModule(['AnimatedAvatar'], false)
 const ChannelStore = getModule(['openPrivateChannel'], false)
 const moment = getModule(['createFromInputFallback'], false)

@@ -8,7 +8,7 @@ const Previews = require('./previews')
 
 const { tabBar, tabBarItem } = getModule(['tabBar', 'tabBarItem'], false)
 const { readFileAsBase64 } = getModule(['readFileAsBase64'], false)
-const { getCurrentUser } = getModule(['getNullableCurrentUser'], false)
+const { getCurrentUser } = getModule(['getCurrentUser', 'getUser'], false)
 const { classifyFile } = getModule(['classifyFile'], false)
 
 const TabBar = getModuleByDisplayName('TabBar', false)

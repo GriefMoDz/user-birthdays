@@ -2,7 +2,7 @@ const { React, getModule } = require('powercord/webpack')
 const { Divider } = require('powercord/components')
 const Lodash = window._
 
-const { getCurrentUser } = getModule(['getNullableCurrentUser'], false)
+const { getCurrentUser } = getModule(['getCurrentUser', 'getUser'], false)
 const { UserPopoutInfo, UserPopoutAvatar } = getModule(['UserPopoutInfo'], false)
 const { UserBannerTypes, default: UserBanner } = getModule(['UserBannerTypes'], false)
 

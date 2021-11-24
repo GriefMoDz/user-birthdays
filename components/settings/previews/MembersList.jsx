@@ -3,7 +3,7 @@ const { Divider } = require('powercord/components')
 const Lodash = window._
 
 const MemberListItem = getModuleByDisplayName('MemberListItem', false)
-const { getCurrentUser } = getModule(['getNullableCurrentUser'], false)
+const { getCurrentUser } = getModule(['getCurrentUser', 'getUser'], false)
 const { getActivities } = getModule(['getActivities'], false)
 const { getStatus } = getModule(['isMobileOnline'], false)
 

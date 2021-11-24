@@ -148,7 +148,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       DiscordTag.default.displayName = 'DiscordTag'
 
-      const userStore = getModule(['getNullableCurrentUser'], false)
+      const userStore = getModule(['getCurrentUser', 'getUser'], false)
       const NameTag = getModule(m => m.default?.displayName === 'NameTag', false)
       this.patch('ub-name-tag2', NameTag, 'default', ([props], res) => {
          const user = props.user || userStore.findByTag(props.name, props.discriminator)

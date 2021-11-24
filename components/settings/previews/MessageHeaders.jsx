@@ -3,7 +3,7 @@ const Lodash = window._
 
 const Message = getModule(m => m.prototype?.getReaction && m.prototype.isSystemDM, false)
 const { default: ChannelMessage } = getModule(['getElementFromMessageId'], false)
-const { getCurrentUser } = getModule(['getNullableCurrentUser'], false)
+const { getCurrentUser } = getModule(['getCurrentUser', 'getUser'], false)
 const Channel = getModule(m => m.prototype?.isDM, false)
 
 const { Divider } = require('powercord/components')
