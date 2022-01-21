@@ -38,7 +38,7 @@ module.exports = class UserBirthdays extends Plugin {
 
       this.patchSettingsPage()
       this.patchBirthdayIcons()
-      this.patchContextMenus()
+      //this.patchContextMenus()
       this.patchToolbar()
    }
 

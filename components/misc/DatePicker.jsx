@@ -4,7 +4,7 @@ const BirthdayStore = require('../../lib/Store')
 
 const { default: DefaultCalendarPicker, default: { defaultProps } } = getModule(['CalendarContainer'], false)
 const { getUser } = getModule(['getCurrentUser', 'getUser'], false)
-const classes = getModule(['calendarPicker'], false)
+const classes = getModule(['calendar'], false)
 
 const VoiceUserSummaryItem = getModuleByDisplayName('VoiceUserSummaryItem', false)
 
