@@ -66,7 +66,7 @@ module.exports = React.memo((props) => {
       }
    }
 
-   return <div className={classes.calendarPicker} ref={datePickerRef}>
+   return <div className={classes?.calendarPicker} ref={datePickerRef}>
       <DefaultCalendarPicker {...customProps} />
    </div>
 })

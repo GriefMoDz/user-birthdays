@@ -7,7 +7,7 @@ const { Plugin } = require('powercord/entities')
 
 const moment = getModule(['createFromInputFallback'], false)
 
-const { getDefaultMethodByKeyword, openDatePicker, openDateUsersModal } = require('./lib/Util')
+const { getDefaultMethodByKeyword, getLazyContextMenuModule, openDatePicker, openDateUsersModal } = require('./lib/Util')
 const { ComponentsToFix } = require('./lib/Constants')
 
 const BirthdayStore = require('./lib/Store')
@@ -170,27 +170,41 @@ module.exports = class UserBirthdays extends Plugin {
          if (!this.props.user) return res
 
          const defaultProps = { user: this.props.user, location: 'direct-messages' }
-         const decorators = Array.isArray(res.props.decorators) ? res.props.decorators : [res.props.decorators]
 
-         res.props.decorators = [
-            <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />,
-            ...decorators
-         ]
+         if (typeof res.props.children === 'function') {
+            res.props.children = (oldMethod => (props) => {
+              const res = oldMethod(props)
+              const decorators = Array.isArray(res.props.decorators) ? res.props.decorators : [res.props.decorators]
+
+              res.props.decorators = [
+               <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />,
+                ...decorators
+              ]
+
+              return res
+            })(res.props.children)
+         }
 
          return res
       })
    }
 
-   patchContextMenus() {
-      const DMContextMenu = getModule(m => m.default?.displayName == 'DMUserContextMenu', false)
+   async patchContextMenus() {
+      const DMContextMenu = await getLazyContextMenuModule('DMUserContextMenu')
+      if (!DMContextMenu) this.error('Could not find the module for \'DMUserContextMenu\'!')
+
       this.patch('ud-context-menu-dm', DMContextMenu, 'default', this.processContextMenu.bind(this))
       DMContextMenu.default.displayName = 'DMUserContextMenu'
 
-      const UserGenericContextMenu = getModule(m => m.default?.displayName == 'UserGenericContextMenu', false)
+      const UserGenericContextMenu = await getLazyContextMenuModule('UserGenericContextMenu')
+      if (!UserGenericContextMenu) this.error('Could not find the module for \'UserGenericContextMenu\'!')
+
       this.patch('ud-context-menu-generic', UserGenericContextMenu, 'default', this.processContextMenu.bind(this))
       UserGenericContextMenu.default.displayName = 'UserGenericContextMenu'
 
-      const GuildUserContextMenu = getModule(m => m.default?.displayName == 'GuildChannelUserContextMenu', false)
+      const GuildUserContextMenu = await getLazyContextMenuModule('GuildChannelUserContextMenu')
+      if (!GuildUserContextMenu) this.error('Could not find the module for \'GuildChannelUserContextMenu\'!')
+
       this.patch('ud-context-menu-guild', GuildUserContextMenu, 'default', this.processContextMenu.bind(this))
       GuildUserContextMenu.default.displayName = 'GuildChannelUserContextMenu'
    }
