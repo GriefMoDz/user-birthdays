@@ -7,7 +7,7 @@ const { Plugin } = require('powercord/entities')
 
 const moment = getModule(['createFromInputFallback'], false)
 
-const { getDefaultMethodByKeyword, getLazyContextMenuModule, openDatePicker, openDateUsersModal } = require('./lib/Util')
+const { getDefaultMethodByKeyword, openDatePicker, openDateUsersModal } = require('./lib/Util')
 const { ComponentsToFix } = require('./lib/Constants')
 
 const BirthdayStore = require('./lib/Store')

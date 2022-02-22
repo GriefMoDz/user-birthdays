@@ -136,7 +136,7 @@ module.exports = class BirthdayAlert extends React.Component {
                onClick={async () => {
                   if (this.state.sent) return
 
-                  const dm = await DM.ensurePrivateChannel([user.id])
+                  const dm = await DM.openPrivateChannel(user.id)
                   if (dm) {
                      const error = await messages.sendMessage(dm, {
                         content: this.utils.getPersonalizedMessage({
