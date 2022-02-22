@@ -1,5 +1,5 @@
 const { React, Flux, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack')
-const { findInReactTree, getOwnerInstance } = require('powercord/util')
+const { findInReactTree, getOwnerInstance, injectContextMenu } = require('powercord/util')
 const { HeaderBar, Menu } = require('powercord/components')
 const { inject, uninject } = require('powercord/injector')
 const { close: closeModal } = require('powercord/modal')
@@ -85,7 +85,7 @@ module.exports = class UserBirthdays extends Plugin {
       const MessageHeader = getModule(m => getDefaultMethodByKeyword(m, 'showTimestampOnHover'), false)
       this.patch('ub-message-header1', MessageHeader, 'default', ([{ message: { author: user } }], res) => {
          const defaultProps = { user, location: 'message-headers' }
-         const header = findInReactTree(res, n =>
+         const header = findInReactTree(res.props?.username, n =>
             Array.isArray(n?.props?.children) &&
             n.props.children.find(c => c?.props?.message)
          )
@@ -173,15 +173,16 @@ module.exports = class UserBirthdays extends Plugin {
 
          if (typeof res.props.children === 'function') {
             res.props.children = (oldMethod => (props) => {
-              const res = oldMethod(props)
-              const decorators = Array.isArray(res.props.decorators) ? res.props.decorators : [res.props.decorators]
+               const res = oldMethod(props)
+               const DecoratorsComponent = findInReactTree(res, n => n.props?.hasOwnProperty('decorators'))
+               const decorators = Array.isArray(DecoratorsComponent.props.decorators) ? DecoratorsComponent.props.decorators : [DecoratorsComponent.props.decorators]
 
-              res.props.decorators = [
-               <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />,
-                ...decorators
-              ]
+               DecoratorsComponent.props.decorators = [
+                  <ConnectedBirthdayIcon {...defaultProps} forceBirthday={this.props.forceBirthday} />,
+                  ...decorators
+               ]
 
-              return res
+               return res
             })(res.props.children)
          }
 
@@ -190,23 +191,17 @@ module.exports = class UserBirthdays extends Plugin {
    }
 
    async patchContextMenus() {
-      const DMContextMenu = await getLazyContextMenuModule('DMUserContextMenu')
-      if (!DMContextMenu) this.error('Could not find the module for \'DMUserContextMenu\'!')
+      this.patches.push(
+         'ud-context-menu-dm',
+         'ud-context-menu-generic',
+         'ud-context-menu-guild-channel',
+         'ud-context-menu-guild'
+      )
 
-      this.patch('ud-context-menu-dm', DMContextMenu, 'default', this.processContextMenu.bind(this))
-      DMContextMenu.default.displayName = 'DMUserContextMenu'
-
-      const UserGenericContextMenu = await getLazyContextMenuModule('UserGenericContextMenu')
-      if (!UserGenericContextMenu) this.error('Could not find the module for \'UserGenericContextMenu\'!')
-
-      this.patch('ud-context-menu-generic', UserGenericContextMenu, 'default', this.processContextMenu.bind(this))
-      UserGenericContextMenu.default.displayName = 'UserGenericContextMenu'
-
-      const GuildUserContextMenu = await getLazyContextMenuModule('GuildChannelUserContextMenu')
-      if (!GuildUserContextMenu) this.error('Could not find the module for \'GuildChannelUserContextMenu\'!')
-
-      this.patch('ud-context-menu-guild', GuildUserContextMenu, 'default', this.processContextMenu.bind(this))
-      GuildUserContextMenu.default.displayName = 'GuildChannelUserContextMenu'
+      injectContextMenu('ud-context-menu-dm', 'DMUserContextMenu', this.processContextMenu.bind(this))
+      injectContextMenu('ud-context-menu-generic', 'UserGenericContextMenu', this.processContextMenu.bind(this))
+      injectContextMenu('ud-context-menu-guild-channel', 'GuildChannelUserContextMenu', this.processContextMenu.bind(this))
+      injectContextMenu('ud-context-menu-guild', 'GuildUserContextMenu', this.processContextMenu.bind(this))
    }
 
    processContextMenu([args], res) {
